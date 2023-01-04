@@ -6,13 +6,12 @@
     --transition: 0.3s;
 }
 * {
-    padding: 0;
+    padding: 3vh;
     margin: 0;
     box-sizing: border-box;
     transition: all var(--transition);
 }
 .app {
-    height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;

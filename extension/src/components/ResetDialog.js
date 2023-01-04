@@ -7,21 +7,22 @@ import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 
 export default function ResetDialog(props) {
-    const [open, setOpen] = React.useState(false)
+    const { onClose, open } = props;
 
-    const handleClickOpen = () => {
-        props.setOpen(!open)
-    }
+  const closeDialog = (value) => {
+    onClose(value);
+  };
+
     return (
         <div>
             <Dialog
                 open={open}
-                onClose={handleClose}
+                onClose={closeDialog}
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
             >
                 <DialogTitle id="alert-dialog-title">
-                    {"Use Google's location service?"}
+                    {"Reset recording"}
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
@@ -30,8 +31,8 @@ export default function ResetDialog(props) {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleClose}>No</Button>
-                    <Button onClick={handleClose} autoFocus>
+                    <Button onClick={() => closeDialog(false)}>No</Button>
+                    <Button onClick={() => closeDialog(true)} autoFocus>
                         Yes
                     </Button>
                 </DialogActions>

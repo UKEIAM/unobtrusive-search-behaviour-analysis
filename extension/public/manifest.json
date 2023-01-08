@@ -1,11 +1,12 @@
 {
     "short_name": "USBA",
     "name": "Unobtrusive Search Beahviour Analysis",
-    "icons": {
-      "16": "favicon.ico",
+    "icons": [
+      {"16": "favicon.ico",
       "48": "logo192.png",
-     "128": "logo512.png"
-    },
+      "128": "logo512.png"
+      }
+    ],
     "permissions": [],
     "manifest_version": 2,
     "version": "0.0.1",

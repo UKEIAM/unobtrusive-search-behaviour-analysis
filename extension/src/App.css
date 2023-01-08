@@ -4,17 +4,34 @@
     --text-light: #f5f5f5;
     --text-dark: #232323;
     --transition: 0.3s;
+   
 }
 * {
     padding: 1vh;
     margin: 0;
-    box-sizing: border-box;
-    transition: all var(--transition);
-    background: var(--bg-light);
+}
+#main {
+    position: relative;
+    min-height: 60px;
 }
 .app {
-    height:auto;    
+   
     display: flex;
     align-items: center;
     justify-content: center;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.24;
+    color: #222;
+    min-width: 500px;
+    margin: 76px 0 64px 0;
+    overflow-x: hidden;
+    
+}
+.html {
+    display: block;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background-color: var(--bg-light)   ;
 }

@@ -1,9 +1,9 @@
-import React from "react";
+import React, { watch } from "react";
 import { Button } from "@mui/material"
 import { useReactMediaRecorder } from "react-media-recorder";
 
 function Recorder (props) {
-    const { active, debug } = props
+
     const { status, startRecording: startRecord, stopRecording: stopRecord, mediaBlobUrl } =
     useReactMediaRecorder({ screen: true });
 
@@ -11,18 +11,9 @@ function Recorder (props) {
     const downloadRecordingType = 'mp4'
 
     const [recordingNumber, setRecordingNumber] = React.useState(0);
+    const [recording, setRecording] = React.useState(false)
+ 
 
-    React.useEffect(() => {
-            if (active){
-                startRecord()
-            }
-            else {
-                const currentTimeStamp = new Date().getTime();
-                setRecordingNumber(currentTimeStamp);
-                stopRecord()
-            }
-        }
-    )
 
     const downloadRecording = () => {
         const pathName = `${downloadRecordingPath}_${recordingNumber}.${downloadRecordingType}`;
@@ -55,9 +46,9 @@ function Recorder (props) {
     return( 
         <div>
             <div>
-                {debug && mediaBlobUrl && status && status == 'stopped' && (
+                {debug && mediaBlobUrl && status && status === 'stopped' && (
                     downloadRecording(),
-                    <>
+         <>
                         <p>{status}</p>
                         <Button
                             size="small"
@@ -77,6 +68,11 @@ function Recorder (props) {
                             Download
                         </Button>
                     </>
+                )}
+                {status && status === 'stopped' && (
+                    stopRecord(),
+                    handleRecording(false),
+                    handleTimerReset()
                 )}
             </div>
         </div>

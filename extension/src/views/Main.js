@@ -1,7 +1,5 @@
 import React, { Component, useState } from 'react'
 import Timer from '@components/Timer'
-import FeedbackWidged from '@components/FeedbackWidget'
-
 
 function MainView() {
     const [active, setActive] = useState(false)
@@ -23,7 +21,6 @@ function MainView() {
                 </span>
             </div>
             <Timer active={active} debug={debug} onClick={handleClick} />
-            <FeedbackWidged active={active} ></FeedbackWidged>
         </div>
     )
 }

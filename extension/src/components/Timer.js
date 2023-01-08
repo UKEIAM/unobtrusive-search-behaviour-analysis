@@ -7,6 +7,9 @@ import React, { useState} from 'react'
 import ResetDialog from '@components/ResetDialog'
 import { useReactMediaRecorder } from "react-media-recorder";
 
+import FeedbackWidget from '@components/FeedbackWidget'
+
+
 
 function Timer(props) {
     const { active, debug, onClick } = props;
@@ -20,7 +23,9 @@ function Timer(props) {
         useReactMediaRecorder({ screen: true });
 
     const [open, setOpen] = useState(false);
+
     const [cancelled, setCancelled] = useState(false)
+    const [searchFeedback, setSearchFeedback] = useState('n.a.')
 
     const downloadRecordingPath = 'TestRecording'
     const downloadRecordingType = 'mp4'
@@ -34,6 +39,7 @@ function Timer(props) {
     const closeDialog = (value) => {
         setOpen(false);
         if (value === true){
+            setCancelled(true)
             resetTimer(undefined, false)
             stopRecording()
         }
@@ -82,7 +88,7 @@ function Timer(props) {
         window.open(mediaBlobUrl, "_blank").focus();
     }
 
-    React.useEffect(() =>{
+    React.useEffect(() => {
         if(status === 'stopped' && active) {
             stopRecording()
             if(debug){
@@ -129,6 +135,9 @@ function Timer(props) {
                     )}
                 </Grid>
             </Grid>
+            {status === 'stopped' &&(
+                <FeedbackWidget cancelled={cancelled}></FeedbackWidget>
+            )}
             
         </div>
     )

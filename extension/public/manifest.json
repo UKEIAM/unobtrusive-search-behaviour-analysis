@@ -1,10 +1,11 @@
 {
     "short_name": "USBA",
     "name": "Unobtrusive Search Beahviour Analysis",
-    "icons": [
-      {"16": "favicon.ico",
-      "48": "logo192.png",
-      "128": "logo512.png"
+    "icons":[
+      {
+        "16": "favicon.ico",
+        "48": "logo192.png",
+        "128": "logo512.png"
       }
     ],
     "permissions": [],
@@ -13,5 +14,8 @@
     "browser_action": {
       "default_popup": "index.html",
       "default_title": "USBA"
+    },
+    "background": {
+      "scripts": ["background.js"]
     }
   }

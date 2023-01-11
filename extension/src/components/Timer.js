@@ -32,10 +32,10 @@ function Timer(props) {
 
     const [recordingNumber, setRecordingNumber] = React.useState(0);
 
-    const openDialog = () => { 
+    const openDialog = () => {
         setOpen(true);
     }
-    
+
     const closeDialog = (value) => {
         setOpen(false);
         if (value === true){
@@ -52,7 +52,7 @@ function Timer(props) {
     }
 
     const stopRecording = () => {
-        
+
         console.log(status)
         stopRecord()
         onClick(false)

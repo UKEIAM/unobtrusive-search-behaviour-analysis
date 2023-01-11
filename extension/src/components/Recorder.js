@@ -23,6 +23,7 @@ function Recorder (props) {
             window.navigator.msSaveOrOpenBlob(mediaBlobUrl, pathName);
           } else {
             // for Chrome
+            console.log(mediaBlobUrl)
             const link = document.createElement("a");
             link.href = mediaBlobUrl;
             link.download = pathName;

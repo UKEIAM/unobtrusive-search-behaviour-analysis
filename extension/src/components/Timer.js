@@ -1,4 +1,3 @@
- /*global chrome*/
 import { useStopwatch } from 'react-timer-hook'
 import { IconButton, Grid } from '@mui/material'
 import { RiRecordCircleLine, RiStopCircleLine } from 'react-icons/ri'
@@ -47,14 +46,12 @@ function Timer(props) {
     };
 
     const startRecording = () => {
-        chrome.runtime.sendMessage({ message: "start_recording" });
         startRecord()
         onClick(true)
         startTimer()
     }
 
     const stopRecording = () => {
-        chrome.runtime.sendMessage({ message: "stop_recording" });
         console.log(status)
         stopRecord()
         onClick(false)

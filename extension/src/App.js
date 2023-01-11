@@ -1,3 +1,5 @@
+ /*global chrome*/
+
 import React, { useContext } from 'react'
 import logo from './logo.svg'
 import './App.css'

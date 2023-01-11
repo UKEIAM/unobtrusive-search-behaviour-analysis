@@ -1,3 +1,4 @@
+ /*global chrome*/
 import { useStopwatch } from 'react-timer-hook'
 import { IconButton, Grid } from '@mui/material'
 import { RiRecordCircleLine, RiStopCircleLine } from 'react-icons/ri'
@@ -46,19 +47,19 @@ function Timer(props) {
     };
 
     const startRecording = () => {
+        chrome.runtime.sendMessage({ message: "start_recording" });
         startRecord()
         onClick(true)
         startTimer()
     }
 
     const stopRecording = () => {
-
+        chrome.runtime.sendMessage({ message: "stop_recording" });
         console.log(status)
         stopRecord()
         onClick(false)
         resetTimer(undefined, false)
     }
-
 
     const downloadRecording = () => {
         const pathName = `${downloadRecordingPath}_${recordingNumber}.${downloadRecordingType}`;
@@ -79,7 +80,7 @@ function Timer(props) {
           console.error(err);
         }
       };
-  
+
     const uploadToServer = () => {
         // TODO: Access remote folder via API and upload mediaBlobUrl
     }
@@ -94,13 +95,12 @@ function Timer(props) {
             if(debug){
                 downloadRecording()
             }
-           
         }
     })
     return (
         <div style={{ fontSize:'50px' }}>
             <Grid container spacing={2} justifyContent= "center">
-                <ResetDialog 
+                <ResetDialog
                     open={open}
                     onClose={closeDialog}
                     ></ResetDialog>

@@ -12,7 +12,7 @@ function Recorder (props) {
 
     const [recordingNumber, setRecordingNumber] = React.useState(0);
     const [recording, setRecording] = React.useState(false)
- 
+
 
 
     const downloadRecording = () => {
@@ -35,7 +35,7 @@ function Recorder (props) {
           console.error(err);
         }
       };
-  
+
     const uploadToServer = () => {
         // TODO: Access remote folder via API and upload mediaBlobUrl
     }
@@ -43,8 +43,8 @@ function Recorder (props) {
     const viewRecording = () => {
         window.open(mediaBlobUrl, "_blank").focus();
       };
-      
-    return( 
+
+    return(
         <div>
             <div>
                 {debug && mediaBlobUrl && status && status === 'stopped' && (

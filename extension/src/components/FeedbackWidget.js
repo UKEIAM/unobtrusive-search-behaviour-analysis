@@ -7,14 +7,25 @@ function FeedbackWidged(props) {
     const vertical = 'bottom'
     const horizontal = 'center'
     const message = 'Recording successful!'
-    
+    const [open, setSnackbarOpen] = React.useState(true)
+
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+          return;
+        }
+        setSnackbarOpen(false);
+      };
+
     return(
         <div>
         {!props.cancelled &&(
-            <Snackbar open={true} autoHideDuration={6000}
+            <Snackbar
+                open={open}
+                autoHideDuration={6000}
                 anchorOrigin={{vertical, horizontal}}
                 key={vertical + horizontal}
-                message={message}>
+                message={message}
+                onClose={handleClose}>
           </Snackbar>
         )}
       </div>

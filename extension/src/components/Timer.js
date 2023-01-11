@@ -20,12 +20,12 @@ function Timer(props) {
         })
 
     const { status, startRecording: startRecord, stopRecording: stopRecord, mediaBlobUrl } =
-        useReactMediaRecorder({ screen: true });
+        useReactMediaRecorder({ screen: true })
 
-    const [open, setOpen] = useState(false);
-
+    const [open, setOpen] = useState(false)
     const [cancelled, setCancelled] = useState(false)
     const [searchFeedback, setSearchFeedback] = useState('n.a.')
+
 
     const downloadRecordingPath = 'TestRecording'
     const downloadRecordingType = 'mp4'
@@ -118,8 +118,8 @@ function Timer(props) {
                 </Grid>
                 <Grid item>
                     {seconds !== 0 ? (
-                        <IconButton onClick={openDialog} style={{ marginBottom: '6vh'}}>    
-                            <BiReset 
+                        <IconButton onClick={openDialog} style={{ marginBottom: '6vh'}}>
+                            <BiReset
                                 style={{ fontSize:'30px', color: 'black' }}
                             ></BiReset>
                         </IconButton>
@@ -133,9 +133,8 @@ function Timer(props) {
                 </Grid>
             </Grid>
             {status === 'stopped' &&(
-                <FeedbackWidget cancelled={cancelled}></FeedbackWidget>
+                <FeedbackWidget cancelled={cancelled} ></FeedbackWidget>
             )}
-            
         </div>
     )
 }

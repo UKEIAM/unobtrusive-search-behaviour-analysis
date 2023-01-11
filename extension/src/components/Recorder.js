@@ -48,7 +48,6 @@ function Recorder (props) {
         <div>
             <div>
                 {debug && mediaBlobUrl && status && status === 'stopped' && (
-                    downloadRecording(),
          <>
                         <p>{status}</p>
                         <Button
@@ -60,7 +59,7 @@ function Recorder (props) {
                         >
                             View
                         </Button>
-                        <Button 
+                        <Button
                             size="small"
                             onClick={downloadRecording}
                             type="primary"

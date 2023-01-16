@@ -1,0 +1,32 @@
+{
+    "short_name": "USBA",
+    "name": "Unobtrusive Search Beahviour Analysis",
+    "icons":
+    {
+      "16": "favicon.ico",
+      "48": "logo192.png",
+      "128": "logo512.png"
+    },
+    "permissions": [
+      "tabs",
+      "activeTab",
+      "desktopCapture",
+      "webNavigation",
+      "<all_urls>"],
+
+    "manifest_version": 3,
+    "version": "0.1.0",
+    "browser_action": {
+      "default_popup": "index.html",
+      "default_title": "USBA"
+    },
+    "background": {
+      "service_worker": "service-worker.js"
+    },
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["scripts/mouse-behaviour.js"]
+        }
+    ]
+  }

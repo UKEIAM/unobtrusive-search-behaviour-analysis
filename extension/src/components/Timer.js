@@ -26,8 +26,7 @@ function Timer(props) {
     const [open, setOpen] = useState(false)
     const [cancelled, setCancelled] = useState(false)
     const [searchFeedback, setSearchFeedback] = useState('n.a.')
-
-
+    const [stopped, setStopped] = useState(false)
 
 
     const [recordingNumber, setRecordingNumber] = React.useState(0);
@@ -53,7 +52,6 @@ function Timer(props) {
     }
 
     const stopRecording = () => {
-        console.log(status)
         chrome.runtime.sendMessage({ message: "stop_recording" });
        // stopRecord()
         onClick(false)
@@ -62,10 +60,6 @@ function Timer(props) {
 
     const uploadToServer = () => {
         // TODO: Access remote folder via API and upload mediaBlobUrl
-    }
-
-    const viewRecording = () => {
-        window.open(mediaBlobUrl, "_blank").focus();
     }
 
     /* React.useEffect(() => {
@@ -115,7 +109,7 @@ function Timer(props) {
                     )}
                 </Grid>
             </Grid>
-            {status === 'stopped' &&(
+            {stopped &&(
                 <FeedbackWidget cancelled={cancelled} ></FeedbackWidget>
             )}
         </div>

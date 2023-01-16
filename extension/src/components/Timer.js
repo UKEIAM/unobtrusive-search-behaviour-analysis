@@ -20,16 +20,15 @@ function Timer(props) {
             autoStart: false,
         })
 
-    const { status, startRecording: startRecord, stopRecording: stopRecord, mediaBlobUrl } =
-        useReactMediaRecorder({ screen: true })
+    /* const { status, startRecording: startRecord, stopRecording: stopRecord, mediaBlobUrl } =
+        useReactMediaRecorder({ screen: true })*/
 
     const [open, setOpen] = useState(false)
     const [cancelled, setCancelled] = useState(false)
     const [searchFeedback, setSearchFeedback] = useState('n.a.')
 
 
-    const downloadRecordingPath = 'TestRecording'
-    const downloadRecordingType = 'mp4'
+
 
     const [recordingNumber, setRecordingNumber] = React.useState(0);
 
@@ -47,39 +46,19 @@ function Timer(props) {
     };
 
     const startRecording = () => {
-        //chrome.runtime.sendMessage({ message: "start_recording" });
-        startRecord()
+        chrome.runtime.sendMessage({ message: "start_recording" });
+      //  startRecord()
         onClick(true)
         startTimer()
     }
 
     const stopRecording = () => {
         console.log(status)
-        //chrome.runtime.sendMessage({ message: "stop_recording" });
-        stopRecord()
+        chrome.runtime.sendMessage({ message: "stop_recording" });
+       // stopRecord()
         onClick(false)
         resetTimer(undefined, false)
     }
-
-    const downloadRecording = () => {
-        const pathName = `${downloadRecordingPath}_${recordingNumber}.${downloadRecordingType}`;
-        try {
-          if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-            // for IE
-            window.navigator.msSaveOrOpenBlob(mediaBlobUrl, pathName);
-          } else {
-            // for Chrome
-            const link = document.createElement("a");
-            link.href = mediaBlobUrl;
-            link.download = pathName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-          }
-        } catch (err) {
-          console.error(err);
-        }
-      };
 
     const uploadToServer = () => {
         // TODO: Access remote folder via API and upload mediaBlobUrl
@@ -89,14 +68,15 @@ function Timer(props) {
         window.open(mediaBlobUrl, "_blank").focus();
     }
 
-    React.useEffect(() => {
+    /* React.useEffect(() => {
         if(status === 'stopped' && active) {
             stopRecording()
             if(debug){
                 downloadRecording()
             }
         }
-    })
+    }) */
+
     return (
         <div style={{ fontSize:'50px' }}>
             <Grid container spacing={2} justifyContent= "center">

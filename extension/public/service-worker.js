@@ -6,22 +6,20 @@ chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.message === "start_recording") {
       startRecording();
-      recording = true
+      console.log(recording)
     } else if (request.message === "stop_recording") {
       stopRecording();
-      recording = false
     }
   });
 
-if (recording) {
-    chrome.webNavigation.onCommitted.addListener((details) => {
-        documentId = details['documentId']
-        frameId = details['frameId']
-        frameType = details['frameType']
-        transitionType = details['transitionType']
-        formatNavigationData(details)
-    })
-}
+chrome.webNavigation.onCommitted.addListener((details) => {
+    documentId = details['documentId']
+    frameId = details['frameId']
+    frameType = details['frameType']
+    transitionType = details['transitionType']
+    formatNavigationData(details)
+})
+
 
 // FUNCTIONS
 function startRecording() {
@@ -41,3 +39,26 @@ var navigationData = []
 function formatNavigationData(data) {
     navigationData.push(data)
 }
+
+// TODO: For debug, download recording to machine after mediarecorder has recorded
+const downloadRecordingPath = 'TestRecording'
+const downloadRecordingType = 'mp4'
+const downloadRecording = () => {
+    const pathName = `${downloadRecordingPath}_${recordingNumber}.${downloadRecordingType}`;
+    try {
+      if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+        // for IE
+        window.navigator.msSaveOrOpenBlob(mediaBlobUrl, pathName);
+      } else {
+        // for Chrome
+        const link = document.createElement("a");
+        link.href = mediaBlobUrl;
+        link.download = pathName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };

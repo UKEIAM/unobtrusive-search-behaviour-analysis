@@ -16,12 +16,13 @@
 
     "manifest_version": 3,
     "version": "0.1.0",
-    "browser_action": {
+    "action": {
       "default_popup": "index.html",
       "default_title": "USBA"
     },
     "background": {
-      "service_worker": "service-worker.js"
+      "service_worker": "service-worker.js",
+      "type": "module"
     },
     "content_scripts": [
         {

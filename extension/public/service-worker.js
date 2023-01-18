@@ -1,107 +1,107 @@
 console.log('Backgroundworker active')
 
+let clicks = []
+let recording = false;
+
 // MAIN FUNCTION ORCHESTRATION
-var recording = false;
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.message === "start_recording") {
-      startRecording();
-      startMetaCollection();
+      startMetaCollection()
+      record()
+      recording = true
       console.log(recording)
-    } else if (request.message === "stop_recording") {
-      stopRecording();
-      stopMetaCollection();
+    }
+    if (request.message === "stop_recording") {
+      stopMetaCollection()
+      recording = getFormHelperTextUtilityClasses
+      console.log(recording)
+    }
+    // Track any click evenet
+    if (request.message === "click_tracked") {
+      clicks.push(request.data)
+      console.log(request.data)
+    }
+    // DEBUG
+    if (request.message === "reset_timer") {
+      recording = false
+      console.log(clicks)
+      console.log(navigationData)
     }
   });
 
+let currentTab;
+// Cover all tab interactions
+chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
+  if(changeInfo.status == "complete") {
+    chrome.tabs.onActivated.addListener( (activeInfo) => {
+      currentTab = activeInfo.tabId;
+      chrome.scripting.executeScript({
+        target: {tabId: activeInfo.tabId},
+        files: ["scripts/mouse-behaviour.js"]
+      }
+      )
+    });
+  }
+})
+// Cover for newly created tabs, since extension gods "reloaded" on every change
+chrome.tabs.onCreated.addListener( (tabId, changeInfo, tab) => {
+  if(changeInfo.status == "complete") {
+    chrome.scripting.executeScript({
+      target: {tabId: tabId.tabId, allFrames: true},
+      files: ["scripts/mouse-behaviour.js"]
+    });
+  }
+})
+
 // HELPER
 // Read config file
-chrome.runtime.getPackageDirectoryEntry((root) => {
-  root.getFile('config.json', {}, (file) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-    const config = JSON.parse(reader.result);
-    const recordType = config.recordType;
-    };
-    reader.readAsText(file);
-  });
-});
-
 
 
 // FUNCTIONS
-function startRecording() {
-  navigator.mediaDevices.getUserMedia({ screen: true }).then((stream) => {
-    // Create a new MediaRecorder object
-    const options = { mimeType: "video/webm; codecs=vp9" };
-    const recorder = new MediaRecorder(stream, options);
-
-    // Start recording
-    recorder.start();
-
-    // Listen for the dataavailable event
-    recorder.addEventListener('dataavailable', (event) => {
-      // TODO: Case of handling file depending on the config.json
-        // If config.json/ upload -> upload to server
-        // Otherwise, download locally
-        const audioBlob = event.data;
-        const url = URL.createObjectURL(audioBlob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'recording.webm';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link)
-        URL.revokeObjectURL(url);
-    });
-});
-  recording = true;
-  console.log('Recording')
-  // Code to start the recording using the react-media-record package
-}
-
-function stopRecording() {
-  recording = false;
-  console.log('Stopping')
-  // Code to stop the recording and save it to a file
-}
-
-// Is there a way to pass data from service worker to react app?
-var navigationData = []
+// Save navigational data
+let navigationData = []
 function formatNavigationData(data) {
     navigationData.push(data)
 }
 
-// TODO: For debug, download recording to machine after mediarecorder has recorded
-const downloadRecordingPath = 'TestRecording'
-const downloadRecordingType = 'mp4'
-const downloadRecording = () => {
-  const pathName = `${downloadRecordingPath}_${recordingNumber}.${downloadRecordingType}`;
-  try {
-    if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-      // for IE
-      window.navigator.msSaveOrOpenBlob(mediaBlobUrl, pathName);
-    } else {
-      // for Chrome
-      const link = document.createElement("a");
-      link.href = mediaBlobUrl;
-      link.download = pathName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+chrome.runtime.getPackageDirectoryEntry((root) => {
+  root.getFile('config.json', {}, (file) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+        // Parse the contents of the config.json file as JSON
+        const config = JSON.parse(reader.result);
+        const recordType = config.recordType;
+
+        // Use config settings
+
+    };
+    reader.onerror = (event) => {
+        console.error("File could not be read! Code " + event.target.error.code);
     }
-  } catch (err) {
-    console.error(err);
-  }
-};
+    reader.readAsText(file);
+  });
+});
+function record () {
+  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+    chrome.scripting.executeScript({
+      target: {tabId: tabs[0].id},
+      files: ["scripts/recorder_debug.js"]
+    });
+  })
+}
 
 // Start and stop the meta collection when recording has been started
 function startMetaCollection() {
   chrome.webNavigation.onCommitted.addListener((details) => {
-    documentId = details['documentId']
-    frameId = details['frameId']
-    frameType = details['frameType']
-    transitionType = details['transitionType']
+    var documentId = details['documentId']
+    var frameId = details['frameId']
+    var frameType = details['frameType']
+    var transitionType = details['transitionType']
+    console.log('DocumentID: ', documentId)
+    console.log('FrameId: ', frameId)
+    console.log('FrameType: ', frameType)
+    console.log('TransitionType: ', transitionType)
     formatNavigationData(details)
   })
 }

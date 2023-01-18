@@ -6,7 +6,6 @@ import { BiReset } from 'react-icons/bi'
 import './Timer.css'
 import React, { useState} from 'react'
 import ResetDialog from '@components/ResetDialog'
-import { useReactMediaRecorder } from "react-media-recorder";
 
 import FeedbackWidget from '@components/FeedbackWidget'
 
@@ -27,6 +26,7 @@ function Timer(props) {
     const [cancelled, setCancelled] = useState(false)
     const [searchFeedback, setSearchFeedback] = useState('n.a.')
     const [stopped, setStopped] = useState(false)
+    const [startTimeStamp, setStartTimeStamp] = useState(undefined)
 
 
     const [recordingNumber, setRecordingNumber] = React.useState(0);
@@ -39,37 +39,37 @@ function Timer(props) {
         setOpen(false);
         if (value === true){
             setCancelled(true)
+            setStartTimeStamp(undefined)
             resetTimer(undefined, false)
             stopRecording()
+            chrome.runtime.sendMessage({ message: "reset_timer" })
         }
     };
 
     const startRecording = () => {
-        chrome.runtime.sendMessage({ message: "start_recording" });
-      //  startRecord()
+        setStartTimeStamp(new Date())
+        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            chrome.tabs.sendMessage(tabs[0].id, { message: "start_recording" })
+        })
+        chrome.runtime.sendMessage({ message: "start_recording", data: {startTimeStamp} })
         onClick(true)
         startTimer()
     }
 
     const stopRecording = () => {
+        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            chrome.tabs.sendMessage(tabs[0].id, { message: "stop_recording" })
+        })
         chrome.runtime.sendMessage({ message: "stop_recording" });
-       // stopRecord()
         onClick(false)
+        setStartTimeStamp(undefined)
         resetTimer(undefined, false)
+        chrome.runtime.sendMessage()
     }
 
     const uploadToServer = () => {
         // TODO: Access remote folder via API and upload mediaBlobUrl
     }
-
-    /* React.useEffect(() => {
-        if(status === 'stopped' && active) {
-            stopRecording()
-            if(debug){
-                downloadRecording()
-            }
-        }
-    }) */
 
     return (
         <div style={{ fontSize:'50px' }}>

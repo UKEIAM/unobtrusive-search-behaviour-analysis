@@ -7,13 +7,17 @@
       "48": "logo192.png",
       "128": "logo512.png"
     },
+    "host_permissions": [
+      "<all_urls>"
+    ],
     "permissions": [
       "tabs",
       "activeTab",
+      "scripting",
       "desktopCapture",
       "webNavigation",
-      "<all_urls>"],
-
+      "<all_urls>"
+    ],
     "manifest_version": 3,
     "version": "0.1.0",
     "action": {
@@ -29,5 +33,6 @@
             "matches": ["<all_urls>"],
             "js": ["scripts/mouse-behaviour.js"]
         }
-    ]
+    ],
+    "author": "@kevin.kraus@studium.uni-hamburg.de"
   }

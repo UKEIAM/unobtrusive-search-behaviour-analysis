@@ -19,9 +19,6 @@ function Timer(props) {
             autoStart: false,
         })
 
-    /* const { status, startRecording: startRecord, stopRecording: stopRecord, mediaBlobUrl } =
-        useReactMediaRecorder({ screen: true })*/
-
     const [open, setOpen] = useState(false)
     const [cancelled, setCancelled] = useState(false)
     const [searchFeedback, setSearchFeedback] = useState('n.a.')
@@ -50,10 +47,10 @@ function Timer(props) {
 
     const startRecording = () => {
         setStartTimestamp(new Date())
-        // chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-        //     chrome.tabs.sendMessage(tabs[0].id, { message: "start" }).then((resp) => {
-        //     })
-        //   })
+        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            chrome.tabs.sendMessage(tabs[0].id, { message: "start" }).then((resp) => {
+            })
+          })
         chrome.runtime.sendMessage({ message: "start_recording", data: {startTimestamp} })
         onClick(true)
         startTimer()

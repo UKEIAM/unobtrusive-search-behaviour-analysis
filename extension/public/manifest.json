@@ -31,7 +31,7 @@
     "content_scripts": [
         {
             "matches": ["<all_urls>"],
-            "js": ["scripts/mouse-behaviour.js", "scripts/downloader.js", "scripts/recorder.js"]
+            "js": ["scripts/mouse-behaviour.js", "scripts/recorder.js"]
         }
     ],
     "author": "@kevin.kraus@studium.uni-hamburg.de"

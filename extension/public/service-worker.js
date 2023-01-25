@@ -1,6 +1,4 @@
 
-console.log('Backgroundworker active')
-
 let clicks = []
 let recording = false;
 let startTimestamp = null
@@ -9,7 +7,6 @@ let startTimestamp = null
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.message === "start_recording") {
-      record()
       startMetaCollection()
       startTimestamp = request.data
       recording = true
@@ -18,7 +15,6 @@ chrome.runtime.onMessage.addListener(
     if (request.message === "click_tracked") {
       clicks.push(request.data)
     }
-    // DEBUG
     if (request.message === "reset_timer") {
       recording = false
       console.log(String(startTimestamp))
@@ -26,9 +22,9 @@ chrome.runtime.onMessage.addListener(
       stopMetaCollection()
     }
     if (request.message === "recording_stopped") {
-      startMetaCollection()
-      recording = false
       handleDownload()
+      stopMetaCollection()
+      recording = false
       // uploadAPI(data.recordedChunks)
     }
   });
@@ -66,6 +62,14 @@ chrome.tabs.onCreated.addListener( (tabId, changeInfo, tab) => {
 
 
 // FUNCTIONS
+
+function handleDownload() {
+  console.log("Download")
+  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+    chrome.tabs.sendMessage(tabs[0].id, { message: "download", data: [clicks, navigationData] })
+  })
+  clicks = []
+}
 // Save navigational data
 let navigationData = []
 function formatNavigationData(data) {
@@ -98,22 +102,6 @@ function handleRecording(recordedChunks) {
 
   let navigation_tracking = JSON.stringify(navigationData);
   console.log(navigation_tracking)
-  // var blob = new Blob([navigation_tracking], {type : 'application/json'});
-  // var url = URL.createObjectURL(blob);
-
-  // chrome.downloads.download({
-  //   url: url,
-  //   filename: "navigation_tracking.json" // Optional
-  // });
-}
-
-function record () {
-   chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-    chrome.scripting.executeScript({
-      target: {tabId: tabs[0].id, allFrames: true},
-      files: ["scripts/mouse-behaviour.js"]
-    });
-            })
 }
 
 // Start and stop the meta collection when recording has been started
@@ -130,11 +118,4 @@ function startMetaCollection() {
 function stopMetaCollection() {
   chrome.webNavigation.onCommitted.removeListener(startMetaCollection)
   navigationData = []
-}
-
-function handleDownload() {
-  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-    chrome.tabs.sendMessage(tabs[0].id, { message: "download", data: clicks })
-})
-  clicks = []
 }

@@ -1,34 +1,40 @@
+
 console.log('Backgroundworker active')
 
 let clicks = []
 let recording = false;
+let startTimestamp = null
 
 // MAIN FUNCTION ORCHESTRATION
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.message === "start_recording") {
       startMetaCollection()
-      record()
+      startTimestamp = request.data
       recording = true
-      console.log(recording)
-    }
-    if (request.message === "stop_recording") {
-      stopMetaCollection()
-      recording = getFormHelperTextUtilityClasses
-      console.log(recording)
     }
     // Track any click evenet
     if (request.message === "click_tracked") {
       clicks.push(request.data)
-      console.log(request.data)
     }
     // DEBUG
     if (request.message === "reset_timer") {
       recording = false
-      console.log(clicks)
-      console.log(navigationData)
+      console.log(String(startTimestamp))
+      clicks = []
+      stopMetaCollection()
+    }
+    if (request.message === "recording_stopped") {
+      startMetaCollection()
+      recording = false
+      handleDownload()
+      // uploadAPI(data.recordedChunks)
     }
   });
+
+// chrome.runtime.addEventListener('activate', (e) => {
+
+// })
 
 let currentTab;
 // Cover all tab interactions
@@ -65,31 +71,47 @@ function formatNavigationData(data) {
     navigationData.push(data)
 }
 
-chrome.runtime.getPackageDirectoryEntry((root) => {
-  root.getFile('config.json', {}, (file) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-        // Parse the contents of the config.json file as JSON
-        const config = JSON.parse(reader.result);
-        const recordType = config.recordType;
+// chrome.runtime.getPackageDirectoryEntry((root) => {
+//   root.getFile('config.json', {}, (file) => {
+//     const reader = new FileReader();
+//     reader.onload = () => {
+//         // Parse the contents of the config.json file as JSON
+//         const config = JSON.parse(reader.result);
+//         const recordType = config.recordType;
 
-        // Use config settings
+//         // Use config settings
 
-    };
-    reader.onerror = (event) => {
-        console.error("File could not be read! Code " + event.target.error.code);
-    }
-    reader.readAsText(file);
-  });
-});
-function record () {
-  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-    chrome.scripting.executeScript({
-      target: {tabId: tabs[0].id},
-      files: ["scripts/recorder_debug.js"]
-    });
-  })
+//     };
+//     reader.onerror = (event) => {
+//         console.error("File could not be read! Code " + event.target.error.code);
+//     }
+//     reader.readAsText(file);
+//   });
+// });
+
+function handleRecording(recordedChunks) {
+  let recBlob = new Blob(recordedChunks)
+  console.log(recBlob)
+  // Transfer to cloud
+  // Downloading from service-worker.js not possible, since URL is not accessible by the service-worker -> API only
+
+  let navigation_tracking = JSON.stringify(navigationData);
+  console.log(navigation_tracking)
+  // var blob = new Blob([navigation_tracking], {type : 'application/json'});
+  // var url = URL.createObjectURL(blob);
+
+  // chrome.downloads.download({
+  //   url: url,
+  //   filename: "navigation_tracking.json" // Optional
+  // });
 }
+
+// function record () {
+//    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+//             chrome.tabs.sendMessage(tabs[0].id, { message: "start" }).then((resp) => {
+//             })
+//           })
+// }
 
 // Start and stop the meta collection when recording has been started
 function startMetaCollection() {
@@ -98,14 +120,18 @@ function startMetaCollection() {
     var frameId = details['frameId']
     var frameType = details['frameType']
     var transitionType = details['transitionType']
-    console.log('DocumentID: ', documentId)
-    console.log('FrameId: ', frameId)
-    console.log('FrameType: ', frameType)
-    console.log('TransitionType: ', transitionType)
     formatNavigationData(details)
   })
 }
 
 function stopMetaCollection() {
   chrome.webNavigation.onCommitted.removeListener(startMetaCollection)
+  navigationData = []
+}
+
+function handleDownload() {
+  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+    chrome.tabs.sendMessage(tabs[0].id, { message: "download", data: clicks })
+})
+  clicks = []
 }

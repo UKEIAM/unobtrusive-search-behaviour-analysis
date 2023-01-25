@@ -26,8 +26,8 @@ function Timer(props) {
     const [cancelled, setCancelled] = useState(false)
     const [searchFeedback, setSearchFeedback] = useState('n.a.')
     const [stopped, setStopped] = useState(false)
-    const [startTimeStamp, setStartTimeStamp] = useState(undefined)
-
+    const [startTimestamp, setStartTimestamp] = useState(undefined)
+    const [recording, setRecording] = useState(undefined)
 
     const [recordingNumber, setRecordingNumber] = React.useState(0);
 
@@ -39,30 +39,30 @@ function Timer(props) {
         setOpen(false);
         if (value === true){
             setCancelled(true)
-            setStartTimeStamp(undefined)
+            setStartTimestamp(undefined)
             resetTimer(undefined, false)
-            stopRecording()
+            chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+                chrome.tabs.sendMessage(tabs[0].id, { message: "reset" })
+              })
             chrome.runtime.sendMessage({ message: "reset_timer" })
         }
     };
 
     const startRecording = () => {
-        setStartTimeStamp(new Date())
+        setStartTimestamp(new Date())
         chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-            chrome.tabs.sendMessage(tabs[0].id, { message: "start_recording" })
-        })
-        chrome.runtime.sendMessage({ message: "start_recording", data: {startTimeStamp} })
+            chrome.tabs.sendMessage(tabs[0].id, { message: "start" }).then((resp) => {
+            })
+          })
+        chrome.runtime.sendMessage({ message: "start_recording", data: {startTimestamp} })
         onClick(true)
         startTimer()
     }
 
     const stopRecording = () => {
-        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-            chrome.tabs.sendMessage(tabs[0].id, { message: "stop_recording" })
-        })
         chrome.runtime.sendMessage({ message: "stop_recording" });
         onClick(false)
-        setStartTimeStamp(undefined)
+        setStartTimestamp(undefined)
         resetTimer(undefined, false)
         chrome.runtime.sendMessage()
     }
@@ -94,7 +94,7 @@ function Timer(props) {
                         <span>{seconds}</span>
                 </Grid>
                 <Grid item>
-                    {seconds !== 0 ? (
+                    {cancelled !== true ? (
                         <IconButton onClick={openDialog} style={{ marginBottom: '6vh'}}>
                             <BiReset
                                 style={{ fontSize:'30px', color: 'black' }}

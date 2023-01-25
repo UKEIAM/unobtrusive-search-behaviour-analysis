@@ -50,10 +50,10 @@ function Timer(props) {
 
     const startRecording = () => {
         setStartTimestamp(new Date())
-        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-            chrome.tabs.sendMessage(tabs[0].id, { message: "start" }).then((resp) => {
-            })
-          })
+        // chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+        //     chrome.tabs.sendMessage(tabs[0].id, { message: "start" }).then((resp) => {
+        //     })
+        //   })
         chrome.runtime.sendMessage({ message: "start_recording", data: {startTimestamp} })
         onClick(true)
         startTimer()

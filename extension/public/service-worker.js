@@ -9,6 +9,7 @@ let startTimestamp = null
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.message === "start_recording") {
+      record()
       startMetaCollection()
       startTimestamp = request.data
       recording = true
@@ -106,12 +107,14 @@ function handleRecording(recordedChunks) {
   // });
 }
 
-// function record () {
-//    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-//             chrome.tabs.sendMessage(tabs[0].id, { message: "start" }).then((resp) => {
-//             })
-//           })
-// }
+function record () {
+   chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+    chrome.scripting.executeScript({
+      target: {tabId: tabs[0].id, allFrames: true},
+      files: ["scripts/mouse-behaviour.js"]
+    });
+            })
+}
 
 // Start and stop the meta collection when recording has been started
 function startMetaCollection() {

@@ -1,15 +1,8 @@
 import React, { Component, useState } from 'react'
-import Timer from '@components/Timer'
+import Timer from '@components/UI'
 
 function MainView() {
-    const [active, setActive] = useState(false)
-    const [searchFeedback, setSearchFeedback] = useState('n.a.')
-
     const [debug, setDebug] = useState(true)
-
-    const handleClick = (value) => {
-        setActive(value)
-    }
 
     return (
         <div id='main'>
@@ -20,7 +13,7 @@ function MainView() {
                     <p>Unobtrusive Search Behaviour Analysis</p>
                 </span>
             </div>
-            <Timer active={active} debug={debug} onClick={handleClick} />
+            <Timer debug={debug} />
         </div>
     )
 }

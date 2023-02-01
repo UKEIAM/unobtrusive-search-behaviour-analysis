@@ -61,6 +61,7 @@ function handleRecording(recordedChunks) {
 
 // Start and stop the meta collection when recording has been started
 function startNavigationTracking() {
+  console.log('Navigation tracking started')
   chrome.webNavigation.onCommitted.addListener((details) => {
     var documentId = details['documentId']
     var frameId = details['frameId']

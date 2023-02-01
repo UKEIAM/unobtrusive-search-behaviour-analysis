@@ -1,4 +1,4 @@
-
+console.log('Recorder started')
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if(request.message === 'reset') {

@@ -62,7 +62,7 @@ function Timer(props) {
                 })
               })
         }
- 
+
         if (navigation) {
             chrome.runtime.sendMessage({ message: "start_navigation_tracking"})
         }

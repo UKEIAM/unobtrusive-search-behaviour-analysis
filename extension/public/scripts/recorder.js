@@ -7,7 +7,9 @@ chrome.runtime.onMessage.addListener(
     }
     if(request.message === 'start') {
       startCapture()
-      sendResponse({response: recordedChunks})
+    }
+    if(request.message === 'stop') {
+      stopCapture()
     }
   }
 )
@@ -53,8 +55,7 @@ function startCapture() {
         link.href = url;
         link.download = `recording_${timeStamp}.webm`;
         document.body.appendChild(link);
-        // OUTCOMMENT AFTER DEBUG
-        //link.click();
+        link.click();
         document.body.removeChild(link)
         URL.revokeObjectURL(url);
         sendRecordedChunks()
@@ -64,7 +65,11 @@ function startCapture() {
 }
 
 function sendRecordedChunks () {
-  chrome.runtime.sendMessage({ message: 'recording_stopped', data: recordedChunks})
+  chrome.runtime.sendMessage({ message: 'capture_stopped', data: recordedChunks})
+}
+
+function stopCapture () {
+  recorder.stop()
 }
 
 

@@ -1,5 +1,5 @@
 import React, { Component, useState } from 'react'
-import Timer from '@components/UI'
+import UI from '@components/UI'
 
 function MainView() {
     const [debug, setDebug] = useState(true)
@@ -13,7 +13,7 @@ function MainView() {
                     <p>Unobtrusive Search Behaviour Analysis</p>
                 </span>
             </div>
-            <Timer debug={debug} />
+            <UI debug={debug} />
         </div>
     )
 }

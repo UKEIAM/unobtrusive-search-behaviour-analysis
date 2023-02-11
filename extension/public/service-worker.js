@@ -30,7 +30,6 @@ chrome.runtime.onMessage.addListener(
     }
      // Message from user
      if (request.message === "stop_recording") {
-      
       stopNavigationTracking()
       stopMouseTracking()
       recording = false
@@ -46,7 +45,7 @@ chrome.runtime.onMessage.addListener(
     }
     if (request.message === "finished_feedback") {
       console.log(request.data)
-      //handleDownload(request.data)
+      // handleDownload(request.data)
       // uploadRecordingToServer()
     }
   });
@@ -96,6 +95,7 @@ function startNavigationTracking() {
 }
 
 function stopNavigationTracking() {
+  console.log("Stopped navigation capturing")
   chrome.webNavigation.onCommitted.removeListener(startNavigationTracking)
   navigationData = []
 }
@@ -128,6 +128,7 @@ function startMouseTracking() {
 }
 
 function stopMouseTracking() {
+  console.log("Stopped mouse capturing")
   chrome.tabs.onUpdated.removeListener(startMouseTracking)
   mouseTracking = []
 }

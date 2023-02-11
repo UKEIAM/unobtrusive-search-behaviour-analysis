@@ -1,7 +1,9 @@
+
 console.log('Recorder started')
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if(request.message === 'reset') {
+      console.log("Stopped screen capturing")
       cancelled = true
       resetRecorder()
     }
@@ -9,6 +11,7 @@ chrome.runtime.onMessage.addListener(
       startCapture()
     }
     if(request.message === 'stop') {
+      console.log("Stopped screen capturing")
       stopCapture()
     }
   }
@@ -43,22 +46,16 @@ function startCapture() {
     console.log(recorder.state);
 
     recorder.onstop = (e) => {
+      changeRecordingState()
       if (cancelled){
         console.log(recorder.state)
       }
       else {
-        console.log(recorder.state)
-        const blob = new Blob(recordedChunks)
-        const link = document.createElement('a');
-        link.style.display = "none";
-        const url = URL.createObjectURL(blob);
-        link.href = url;
-        link.download = `recording_${timeStamp}.webm`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link)
-        URL.revokeObjectURL(url);
-        sendRecordedChunks()
+        // TODO: First change state to trigger feedback component. Then download data.
+        chrome.storage.sync.set({
+          triggerfeedback: true
+        })
+        download()
       }
     }
   }).catch((err) => { console.error(`Error:${err}`); return })
@@ -69,13 +66,33 @@ function sendRecordedChunks () {
 }
 
 function stopCapture () {
-  chrome.storage.local.set({
-    recording: false
-  })
   recorder.stop()
 }
 
 function resetRecorder () {
   console.log('stopping')
   recorder.stop()
+}
+
+function changeRecordingState() {
+  chrome.storage.sync.set({
+    recording: false
+  }, () => {
+    console.log("Recording state changed from recorder.js")
+  })
+}
+
+function download (recordedChunks) {
+  console.log(recorder.state)
+  const blob = new Blob(recordedChunks)
+  const link = document.createElement('a');
+  link.style.display = "none";
+  const url = URL.createObjectURL(blob);
+  link.href = url;
+  link.download = `recording_${timeStamp}.webm`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url);
+  sendRecordedChunks()
 }

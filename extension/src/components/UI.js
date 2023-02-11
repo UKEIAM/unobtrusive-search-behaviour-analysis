@@ -1,6 +1,6 @@
 /*global chrome*/
 import Checkbox from "@mui/material/Checkbox"
-import { IconButton, Grid } from "@mui/material"
+import { IconButton, Grid, Snackbar } from "@mui/material"
 import { RiStopCircleLine } from "react-icons/ri"
 import { MdOutlineNotStarted } from "react-icons/md"
 import { BiReset } from "react-icons/bi"
@@ -17,16 +17,22 @@ function UI(props) {
     const { debug } = props;
 
     useEffect(() => {
-        chrome.storage.local.get(["recording"]).then((result) => {
+        chrome.storage.sync.get(["recording"]).then((result) => {
             setRecording(result.recording)
             console.log(result.recording)
         })
     }, [])
 
     useEffect(() => {
-        chrome.storage.local.get(["userOptions"]).then((result) => {
+        chrome.storage.sync.get(["userOptions"]).then((result) => {
             console.log(result)
             setUserOptions({...userOptions, screen: result.userOptions.screen, navigation: result.userOptions.navigation, mouse: result.userOptions.mouse})
+        })
+    }, [])
+
+    useEffect(() => {
+        chrome.storage.sync.get(["triggerFeedback"]).then((result) => {
+            setTriggerFeedback(result.triggerFeedback)
         })
     }, [])
 
@@ -37,6 +43,8 @@ function UI(props) {
         navigation: true,
         mouse: true,
       });
+
+    const [triggerFeedback, setTriggerFeedback] = React.useState(false)
 
     const [state, setState] = useState({
         stopped: false,
@@ -58,16 +66,7 @@ function UI(props) {
                     chrome.tabs.sendMessage(tabs[0].id, { message: "reset" })
                   })
             }
-            chrome.runtime.sendMessage({ message: "reset" })
-            chrome.storage.local.set({
-                userOptions: {
-                    screen: true,
-                    navigation: true,
-                    mouse: true,
-                },
-                recording: false,
-              })
-
+            resetRecorder()
         }
         setState({...state, open: false})
     };
@@ -101,7 +100,7 @@ function UI(props) {
                 })
             }
 
-            chrome.storage.local.set({
+            chrome.storage.sync.set({
                 userOptions: {
                     screen: userOptions.screen,
                     navigation: userOptions.navigation,
@@ -113,8 +112,9 @@ function UI(props) {
 
     const stopRecording = () => {
         setRecording(false)
+        setTriggerFeedback(true)
         chrome.runtime.sendMessage({ message: "stop_recording"});
-         chrome.storage.local.set({
+         chrome.storage.sync.set({
             recording: false
         })
         if (screen) {
@@ -131,11 +131,27 @@ function UI(props) {
 
     const handleFeedback = (value) => {
         setState({...state, searchFeedback: value})
+        chrome.storage.sync.set({
+            result: value
+        })
+        resetRecorder()
         chrome.runtime.sendMessage({ message: "finished_feedback"});
     }
 
+    // Reset recorder after triggering reset button or after successful recording and feedback
+    const resetRecorder = () => {
+        chrome.runtime.sendMessage({ message: "reset" })
+        chrome.storage.sync.set({
+            userOptions: {
+                screen: true,
+                navigation: true,
+                mouse: true,
+            },
+            recording: false,
+          })
+    }
     // const updateExtesionState = () => {
-    //     chrome.storage.local.set({
+    //     chrome.storage.sync.set({
     //         userOptions: {
     //             screen: userOptions.mouse,
     //             navigation: userOptions.navigation,
@@ -187,9 +203,6 @@ function UI(props) {
                     )}
                 </Grid>
             </Grid>
-            {state.stopped && (
-                <FeedbackWidget onClick={handleFeedback}/>
-            )}
         </div>
     )
 }

@@ -44,7 +44,9 @@ chrome.runtime.onMessage.addListener(
       // uploadRecordingToServer(data.recordedChunks)
     }
     if (request.message === "feedback_recieved") {
-      console.log(request.data)
+      console.log("Feedback finished. Processing data...")
+      // TODO: Debugg downloading of raw data
+      // Consider more logic befor downlaoding
       // handleDownload(request.data)
       // uploadRecordingToServer()
     }

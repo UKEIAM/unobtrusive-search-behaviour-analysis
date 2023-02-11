@@ -32,6 +32,7 @@ function UI(props) {
 
     useEffect(() => {
         chrome.storage.sync.get(["triggerFeedback"]).then((result) => {
+            console.log(result.triggerFeedback)
             setTriggerFeedback(result.triggerFeedback)
         })
     }, [])
@@ -112,10 +113,11 @@ function UI(props) {
 
     const stopRecording = () => {
         setRecording(false)
-        setState({...state, stopped: true})
+        setTriggerFeedback(true)
         chrome.runtime.sendMessage({ message: "stop_recording"});
          chrome.storage.sync.set({
-            recording: false
+            recording: false,
+            triggerFeedback: true
         })
         if (screen) {
             chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
@@ -141,30 +143,22 @@ function UI(props) {
             recording: false,
           })
     }
-    // const updateExtesionState = () => {
-    //     chrome.storage.sync.set({
-    //         userOptions: {
-    //             screen: userOptions.mouse,
-    //             navigation: userOptions.navigation,
-    //             mouse: userOptions.mouse
-    //         },
-    //         recording: record
-    //       })
-    // }
     const continueProcessing = () => {
         console.log("Continuing")
-        // TODO: Only after the feedback was achieved, process and then download or transfer the data.
-        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-            chrome.tabs.sendMessage(tabs[0].id, { message: "download" }).then((resp) => {
+        // TODO: For debugging. Download should be triggered from downloader.js after preprocessing is finished
+        if (userOptions.screen) {
+            chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+                chrome.tabs.sendMessage(tabs[0].id, { message: "download" }).then((resp) => {
+                })
             })
-        })
-
+        }
+        // TODO: Not working
         chrome.runtime.sendMessage({ message: "feedback_recieved" })
     }
 
     return (
         <div style={{ fontSize:"50px" }}>
-            {!state.stopped ? (
+            {!triggerFeedback ? (
                 <Grid container spacing={2} justifyContent="center" alignItems="center">
                 <ResetDialog
                     open={state.open}

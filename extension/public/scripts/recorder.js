@@ -56,9 +56,10 @@ function startCapture() {
       else {
         // TODO: First change state to trigger feedback component. Then download data.
         chrome.storage.sync.set({
-          triggerfeedback: true
+          triggerFeedback: true
         })
-        download()
+        // TODO: Remove once feedback logic works
+        // download()
       }
     }
   }).catch((err) => { console.error(`Error:${err}`); return })
@@ -85,7 +86,9 @@ function changeRecordingState() {
   })
 }
 
-function download (recordedChunks) {
+function download () {
+  // Not working if download is called after Feedback loop -> Possibly needs to be saved into storage, but recordedChunks could be too large
+  console.log("Downloading...")
   console.log(recorder.state)
   const blob = new Blob(recordedChunks)
   const link = document.createElement('a');

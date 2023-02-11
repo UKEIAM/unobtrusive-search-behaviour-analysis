@@ -11,11 +11,14 @@ function FeedbackWidged(props) {
     const [showThanks, setShowThanks] = React.useState(false)
 
     const finishFeedback = (value) => {
-       setShowThanks(true)
+        setShowThanks(true)
+        callBack(true)
         console.log(showThanks)
         chrome.storage.sync.set({
-            result: value
+            result: value,
+            triggerFeedback: false,
         })
+
     }
     return(
         <div>

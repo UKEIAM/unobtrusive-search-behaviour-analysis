@@ -16,7 +16,7 @@ function FeedbackWidged() {
     return(
         <div>
             <Grid container spacing={2} justifyContent="center" alignItems="center">
-                <h4> Was your search?</h4>
+                <h4 className='feedback_header'> Was your search?</h4>
         {!showThanks ? (
             <Grid>
                 <Grid item>

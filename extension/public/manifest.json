@@ -16,7 +16,8 @@
       "scripting",
       "desktopCapture",
       "webNavigation",
-      "<all_urls>"
+      "<all_urls>",
+      "storage"
     ],
     "manifest_version": 3,
     "version": "0.1.0",

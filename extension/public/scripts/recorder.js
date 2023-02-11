@@ -69,9 +69,11 @@ function sendRecordedChunks () {
 }
 
 function stopCapture () {
+  chrome.storage.local.set({
+    recording: false
+  })
   recorder.stop()
 }
-
 
 function resetRecorder () {
   console.log('stopping')

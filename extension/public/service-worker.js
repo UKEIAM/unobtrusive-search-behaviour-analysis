@@ -1,37 +1,21 @@
-let recording = false;
+import { MdSettingsInputAntenna } from "react-icons/md";
 
-let state = {
-  screen: true,
-  navigation: true,
-  mouse: true,
-}
+let recording = false;
 
 // MAIN FUNCTION ORCHESTRATION
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-    if (request.message === "check_state") {
-      console.log(state)
-      sendResponse({"state": state, "recording": recording})
-    }
+    console.log("Message recieved: " + request.message)
     if (request.message === "start_capture") {
-      state.screen = request.flag
+      console.log("Screen capture started")
       recording = true
-    }
-    // message from user
-    if (request.message === "stop_recording") {
-      stopNavigationTracking()
-      stopMouseTracking()
-      stopCapture()
-      recording = false
     }
     if (request.message === "start_navigation_tracking") {
       startNavigationTracking()
-      state.nav = request.flag
       recording = true
     }
     if (request.message === "start_mouse_tracking") {
       startMouseTracking()
-      state.mouse = request.flag
       recording = true
     }
     // Track any click evenet
@@ -40,13 +24,21 @@ chrome.runtime.onMessage.addListener(
     }
     if (request.message === "reset") {
       recording = false
-      console.log('resetting')
+      console.log("resetting")
       stopNavigationTracking()
       stopMouseTracking()
+    }
+     // Message from user
+     if (request.message === "stop_recording") {
+      
+      stopNavigationTracking()
+      stopMouseTracking()
+      recording = false
     }
     // Message from recorder
     if (request.message === "capture_stopped") {
       // handleDownload()
+      console.log(state)
       stopNavigationTracking()
       stopMouseTracking()
       recording = false
@@ -55,6 +47,7 @@ chrome.runtime.onMessage.addListener(
     if (request.message === "finished_feedback") {
       console.log(request.data)
       //handleDownload(request.data)
+      // uploadRecordingToServer()
     }
   });
 
@@ -92,12 +85,12 @@ function uploadRecordingToServer(recordedChunks) {
 
 // Start and stop the meta collection when recording has been started
 function startNavigationTracking() {
-  console.log('Navigation tracking started')
+  console.log("Navigation tracking started")
   chrome.webNavigation.onCommitted.addListener((details) => {
-    var documentId = details['documentId']
-    var frameId = details['frameId']
-    var frameType = details['frameType']
-    var transitionType = details['transitionType']
+    var documentId = details["documentId"]
+    var frameId = details["frameId"]
+    var frameType = details["frameType"]
+    var transitionType = details["transitionType"]
     formatNavigationData(details)
   })
 }
@@ -108,7 +101,7 @@ function stopNavigationTracking() {
 }
 
 function startMouseTracking() {
-  console.log('Mouse tracking started')
+  console.log("Mouse tracking started")
   let currentTab;
   // Cover all tab interactions
   chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
@@ -137,10 +130,4 @@ function startMouseTracking() {
 function stopMouseTracking() {
   chrome.tabs.onUpdated.removeListener(startMouseTracking)
   mouseTracking = []
-}
-
-
-async function stopCapture() {
-  const [tab] = await chrome.tabs.query({active: true, lastFocusedWindow: true});
-  const response = await chrome.tabs.sendMessage(tab.id, {greeting: "stop"});
 }

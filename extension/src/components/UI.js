@@ -151,6 +151,17 @@ function UI(props) {
     //         recording: record
     //       })
     // }
+    const continueProcessing = () => {
+        console.log("Continuing")
+        // TODO: Only after the feedback was achieved, process and then download or transfer the data.
+        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            chrome.tabs.sendMessage(tabs[0].id, { message: "download" }).then((resp) => {
+            })
+        })
+
+        chrome.runtime.sendMessage({ message: "feedback_recieved" })
+    }
+
     return (
         <div style={{ fontSize:"50px" }}>
             {!state.stopped ? (
@@ -196,7 +207,7 @@ function UI(props) {
                 </Grid>
             </Grid>
             ) : (
-                <FeedbackWidget />
+                <FeedbackWidget callBack={continueProcessing}/>
             )}
         </div>
     )

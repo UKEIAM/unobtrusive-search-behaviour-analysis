@@ -43,7 +43,7 @@ chrome.runtime.onMessage.addListener(
       recording = false
       // uploadRecordingToServer(data.recordedChunks)
     }
-    if (request.message === "finished_feedback") {
+    if (request.message === "feedback_recieved") {
       console.log(request.data)
       // handleDownload(request.data)
       // uploadRecordingToServer()

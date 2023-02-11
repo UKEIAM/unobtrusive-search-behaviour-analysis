@@ -14,6 +14,9 @@ chrome.runtime.onMessage.addListener(
       console.log("Stopped screen capturing")
       stopCapture()
     }
+    if(request.message === 'download') {
+      download()
+    }
   }
 )
 

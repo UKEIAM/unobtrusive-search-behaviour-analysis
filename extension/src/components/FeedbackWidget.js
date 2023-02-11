@@ -1,31 +1,37 @@
 /*global chrome*/
 import React from 'react'
+import "./FeedbackWidget.css"
 import { Snackbar, Alert, Grid, Button } from '@mui/material'
 import RecSnackbar from './RecSnackbar'
 
-function FeedbackWidged() {
+function FeedbackWidged(props) {
 
-    let showThanks = false
+    const { callBack } = props
+
+    const [showThanks, setShowThanks] = React.useState(false)
 
     const finishFeedback = (value) => {
-        showThanks = true
+       setShowThanks(true)
+        console.log(showThanks)
         chrome.storage.sync.set({
             result: value
         })
     }
     return(
         <div>
-            <Grid container spacing={2} justifyContent="center" alignItems="center">
-                <h4 className='feedback_header'> Was your search?</h4>
-        {!showThanks ? (
             <Grid>
                 <Grid item>
-                    <Button variant="contained" onClick={finishFeedback(true)}>
+                    <h3 className='feedback_header'> The search was... </h3>
+                </Grid>
+        {!showThanks ? (
+            <Grid  container spacing={2} justifyContent="center" alignItems="center">
+                <Grid item>
+                    <Button variant="contained" onClick={() => finishFeedback(true)}>
                         Successful
                     </Button>
                 </Grid>
                 <Grid item>
-                    <Button variant="outlined" onClick={finishFeedback(false)}>
+                    <Button variant="outlined" onClick={() => finishFeedback(false)}>
                         Not successful
                     </Button>
                 </Grid>
@@ -33,12 +39,12 @@ function FeedbackWidged() {
             ) : (
             <Grid>
                 <Grid item>
-                    <Button variant="contained" disabled onClick={finishFeedback(true)}>
+                    <Button variant="contained" disabled onClick>
                         Successful
                     </Button>
                 </Grid>
                 <Grid item>
-                    <Button variant="outlined" disabled onClick={finishFeedback(false)}>
+                    <Button variant="outlined" disabled onClick>
                         Not successful
                     </Button>
                 </Grid>

@@ -112,7 +112,7 @@ function UI(props) {
 
     const stopRecording = () => {
         setRecording(false)
-        setTriggerFeedback(true)
+        setState({...state, stopped: true})
         chrome.runtime.sendMessage({ message: "stop_recording"});
          chrome.storage.sync.set({
             recording: false
@@ -127,15 +127,6 @@ function UI(props) {
 
     const uploadToServer = () => {
         // TODO: Access remote folder via API and upload mediaBlobUrl
-    }
-
-    const handleFeedback = (value) => {
-        setState({...state, searchFeedback: value})
-        chrome.storage.sync.set({
-            result: value
-        })
-        resetRecorder()
-        chrome.runtime.sendMessage({ message: "finished_feedback"});
     }
 
     // Reset recorder after triggering reset button or after successful recording and feedback
@@ -162,7 +153,8 @@ function UI(props) {
     // }
     return (
         <div style={{ fontSize:"50px" }}>
-            <Grid container spacing={2} justifyContent="center" alignItems="center">
+            {!state.stopped ? (
+                <Grid container spacing={2} justifyContent="center" alignItems="center">
                 <ResetDialog
                     open={state.open}
                     onClose={closeDialog}
@@ -203,6 +195,9 @@ function UI(props) {
                     )}
                 </Grid>
             </Grid>
+            ) : (
+                <FeedbackWidget />
+            )}
         </div>
     )
 }

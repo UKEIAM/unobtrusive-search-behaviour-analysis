@@ -1,40 +1,54 @@
+/*global chrome*/
 import React from 'react'
 import { Snackbar, Alert, Grid, Button } from '@mui/material'
 import RecSnackbar from './RecSnackbar'
 
-function FeedbackWidged(props) {
-    const { callBack } = props
+function FeedbackWidged() {
 
-    const [showThanks, setShowThanks] = React.useState(false)
+    let showThanks = false
 
     const finishFeedback = (value) => {
-        callBack(value)
-        setShowThanks(true)
+        showThanks = true
+        chrome.storage.sync.set({
+            result: value
+        })
     }
     return(
         <div>
+            <Grid container spacing={2} justifyContent="center" alignItems="center">
+                <h4> Was your search?</h4>
         {!showThanks ? (
             <Grid>
-                <h2>Was your search?</h2>
-                <Button variant="contained" onClick={finishFeedback(true)}>
-                    Successful
-                </Button>
-                <Button variant="outlined" onClick={finishFeedback(false)}>
-                    Not successful
-                </Button>
+                <Grid item>
+                    <Button variant="contained" onClick={finishFeedback(true)}>
+                        Successful
+                    </Button>
+                </Grid>
+                <Grid item>
+                    <Button variant="outlined" onClick={finishFeedback(false)}>
+                        Not successful
+                    </Button>
+                </Grid>
             </Grid>
             ) : (
             <Grid>
-                <Button variant="contained" disabled onClick={finishFeedback(true)}>
-                    Successful
-                </Button>
-                <Button variant="outlined" disabled onClick={finishFeedback(false)}>
-                    Not successful
-                </Button>
-                <RecSnackbar/>
+                <Grid item>
+                    <Button variant="contained" disabled onClick={finishFeedback(true)}>
+                        Successful
+                    </Button>
+                </Grid>
+                <Grid item>
+                    <Button variant="outlined" disabled onClick={finishFeedback(false)}>
+                        Not successful
+                    </Button>
+                </Grid>
+                <Grid item>
+                    <RecSnackbar/>
+                </Grid>
             </Grid>
             )
         }
+         </Grid>
       </div>
     )
 }

@@ -67,6 +67,9 @@ function handleDownload() {
   stopMouseTracking()
   stopNavigationTracking()
 }
+// TODO: Add alert on tab refresh, close or browser close -> Screen recorder shuts down if so
+
+
 // Save navigational data
 function formatNavigationData(data) {
   var date = new Date();
@@ -170,7 +173,7 @@ function processJSON() {
   mouseTracking.forEach((row) =>{
     let nestedDict = {
       timeStamp: row['timeStamp'],
-      text: row['tag']
+      text: 'Click on ' + row['tag'] + ' tracked'
     }
     raw.push(nestedDict)
   })

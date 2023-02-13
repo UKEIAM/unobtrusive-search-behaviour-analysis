@@ -145,9 +145,13 @@ function UI(props) {
     }
     async function continueProcessing () {
         chrome.storage.sync.get(['result']).then((resp) => {
-            console.log(resp)
+            console.log(resp.result)
         })
         await chrome.runtime.sendMessage({ message: "feedback_recieved" })
+        console.log('JSONs processed')
+        chrome.storage.sync.get(['webVTTRaw']).then((resp) => {
+            console.log(resp.webVTTRaw)
+        })
         if (userOptions.screen) {
             chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
                 chrome.tabs.sendMessage(tabs[0].id, { message: "download" }).then((resp) => {

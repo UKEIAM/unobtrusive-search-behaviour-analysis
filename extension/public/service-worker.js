@@ -150,28 +150,37 @@ function processJSON() {
   const label = chrome.storage.sync.get(['label'])
   let jsonRaw = {
     navData: navigationData,
-    clickData: clickData,
+    clickData: mouseTracking,
     label: label
   }
   chrome.storage.sync.set({
     jsonRaw: jsonRaw
   })
-  let clicksCleaned = {
-    timestamp
-  }
 
-  let navCleaned = {
+  let raw = []
+  navigationData.forEach((row) =>{
+    let nestedDict = {
+      timeStamp: row['timeStamp'],
+      text: row['transistionType']
+    }
+    raw.push(nestedDict)
+  })
 
-  }
+  mouseTracking.forEach((row) =>{
+    let nestedDict = {
+      timeStamp: row['timeStamp'],
+      text: row['tag']
+    }
+    raw.push(nestedDict)
+  })
 
   let webVTTRaw = []
-  const raw = JSON.parse(jsonData)
   let base = new Date("1970-01-01T" + startTimeStamp);
   // 2. For each row in the new JSON, create the difference between the first timeStamp and all others
   // 2.1
   raw.forEach((row) => {
     // transform Timestamp
-    var date2 = new Date("1970-01-01T" + row['timestamp']); //get correct timestamp value from row
+    var date2 = new Date("1970-01-01T" + row['timeStamp']); //get correct timestamp value from row
     var timeDiff = date2.getTime() - base.getTime();
     var timeDiffForDisplay = (date2.getTime()+200) - base.getTime(); // Add 2 secnonds of display
 
@@ -205,9 +214,11 @@ function processJSON() {
 
     const entry = {
       start: start,
-      end: end
-      text: 'Eventname from JSON'
+      end: end,
+      text: row['text']
     }
+
+    webVTTRaw.push(entry)
   })
 
   // 3 Choose the
@@ -215,4 +226,6 @@ function processJSON() {
     jsonData: jsonRaw,
     webVTTRaw: webVTTRaw,
   })
+
+  
 }

@@ -9,8 +9,8 @@ document.addEventListener("click", (event) => {
     var milliseconds = date.getMilliseconds()
 
     let click_data = {
-        domElement: {
-            tag: event.target.localName,
+        tag: event.target.localName,
+        domElementMeta: {
             outerText: event.target.outerText,
             outerHTML: event.target.outerHTML,
             innerText: event.target.innerText,

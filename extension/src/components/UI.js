@@ -143,8 +143,11 @@ function UI(props) {
             recording: false,
           })
     }
-    const continueProcessing = () => {
+    const continueProcessing = (value) => {
         console.log("Continuing")
+        chrome.storage.sync.get(['result']).then((resp) => {
+            console.log(resp)
+        })
         // TODO: For debugging. Download should be triggered from downloader.js after preprocessing is finished
         if (userOptions.screen) {
             chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {

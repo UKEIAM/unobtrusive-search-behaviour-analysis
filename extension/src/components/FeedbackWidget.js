@@ -12,7 +12,7 @@ function FeedbackWidged(props) {
 
     const finishFeedback = (value) => {
         setShowThanks(true)
-        callBack(true)
+        callBack(value)
         console.log(showThanks)
         chrome.storage.sync.set({
             result: value,

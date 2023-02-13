@@ -1,6 +1,7 @@
-import { MdSettingsInputAntenna } from "react-icons/md";
-
 let recording = false;
+chrome.store.sync.set({
+  startTimeStamp: new Date()
+})
 
 // MAIN FUNCTION ORCHESTRATION
 chrome.runtime.onMessage.addListener(
@@ -20,6 +21,7 @@ chrome.runtime.onMessage.addListener(
     }
     // Track any click evenet
     if (request.message === "click_tracked") {
+      console.log(request.data)
       mouseTracking.push(request.data)
     }
     if (request.message === "reset") {
@@ -37,7 +39,8 @@ chrome.runtime.onMessage.addListener(
     // Message from recorder
     if (request.message === "capture_stopped") {
       // handleDownload()
-      console.log(state)
+      console.log(navigationData)
+      console.log(mouseTracking)
       stopNavigationTracking()
       stopMouseTracking()
       recording = false
@@ -69,7 +72,14 @@ function handleDownload(feedback) {
 }
 // Save navigational data
 function formatNavigationData(data) {
-    navigationData.push(data)
+  var date = new Date();
+  var hours = date.getHours();
+  var minutes = date.getMinutes();
+  var seconds = date.getSeconds();
+  var milliseconds = date.getMilliseconds();
+  data.timeStamp = hours + ":" + minutes + ":" + seconds + "." + milliseconds
+  console.log(data.timeStamp)
+  navigationData.push(data)
 }
 
 function uploadRecordingToServer(recordedChunks) {

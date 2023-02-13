@@ -1,7 +1,4 @@
 let recording = false;
-chrome.store.sync.set({
-  startTimeStamp: new Date()
-})
 
 // MAIN FUNCTION ORCHESTRATION
 chrome.runtime.onMessage.addListener(

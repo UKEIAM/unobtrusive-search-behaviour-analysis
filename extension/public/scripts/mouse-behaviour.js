@@ -1,5 +1,4 @@
 console.log('Clicks script started')
-const dateVTT = chrome.store.sync.get('startTimeStamp')
 
 document.addEventListener("click", (event) => {
     var date = new Date();
@@ -8,11 +7,6 @@ document.addEventListener("click", (event) => {
     var minutes = date.getMinutes()
     var seconds = date.getSeconds()
     var milliseconds = date.getMilliseconds()
-
-    var hoursVTT = date.getHours() - dateVTT.getHours()
-    var minutesVTT = (date.getMinutes() - dateVTT.getMinutes()) < 0 ? '00' : date.getMinutes() - dateVTT.getMinutes()
-    var secondsVTT = (date.getSeconds() - dateVTT.getSeconds()) < 0 ? '00' : date.getSeconds() - dateVTT.getSeconds()
-    var millisecondsVTT = (date.getMilliseconds() - dateVTT.getMilliseconds()) < 0 ? '000' : date.getMilliseconds() - dateVTT.getMilliseconds()
 
     let click_data = {
         domElement: {

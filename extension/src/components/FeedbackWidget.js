@@ -15,7 +15,7 @@ function FeedbackWidged(props) {
         callBack(value)
         console.log(showThanks)
         chrome.storage.sync.set({
-            result: value,
+            label: value,
             triggerFeedback: false,
         })
 

@@ -1,5 +1,5 @@
 let recording = false;
-
+const startTimeStamp = new Date()
 // MAIN FUNCTION ORCHESTRATION
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
@@ -36,8 +36,7 @@ chrome.runtime.onMessage.addListener(
     // Message from recorder
     if (request.message === "capture_stopped") {
       // handleDownload()
-      console.log(navigationData)
-      console.log(mouseTracking)
+      processJSON()
       stopNavigationTracking()
       stopMouseTracking()
       recording = false
@@ -75,7 +74,11 @@ function formatNavigationData(data) {
   var seconds = date.getSeconds();
   var milliseconds = date.getMilliseconds();
   data.timeStamp = hours + ":" + minutes + ":" + seconds + "." + milliseconds
-  console.log(data.timeStamp)
+  data.hours = hours
+  data.minutes = minutes
+  data.seconds = seconds
+  data.milliseconds = milliseconds
+  console.log(data)
   navigationData.push(data)
 }
 
@@ -140,4 +143,76 @@ function stopMouseTracking() {
   console.log("Stopped mouse capturing")
   chrome.tabs.onUpdated.removeListener(startMouseTracking)
   mouseTracking = []
+}
+
+function processJSON() {
+  // 1. Create concat file from NavData, ClickData & Feedback
+  const label = chrome.storage.sync.get(['label'])
+  let jsonRaw = {
+    navData: navigationData,
+    clickData: clickData,
+    label: label
+  }
+  chrome.storage.sync.set({
+    jsonRaw: jsonRaw
+  })
+  let clicksCleaned = {
+    timestamp
+  }
+
+  let navCleaned = {
+
+  }
+
+  let webVTTRaw = []
+  const raw = JSON.parse(jsonData)
+  let base = new Date("1970-01-01T" + startTimeStamp);
+  // 2. For each row in the new JSON, create the difference between the first timeStamp and all others
+  // 2.1
+  raw.forEach((row) => {
+    // transform Timestamp
+    var date2 = new Date("1970-01-01T" + row['timestamp']); //get correct timestamp value from row
+    var timeDiff = date2.getTime() - base.getTime();
+    var timeDiffForDisplay = (date2.getTime()+200) - base.getTime(); // Add 2 secnonds of display
+
+    var hours = Math.floor(timeDiff / (60 * 60 * 1000));
+    var timeDiff = timeDiff % (60 * 60 * 1000);
+    var hoursFD = Math.floor(timeDiffForDisplay / (60 * 60 * 1000));
+    var timeDiffForDisplay = timeDiffForDisplay % (60 * 60 * 1000);
+
+    var minutes = Math.floor(timeDiff / (60 * 1000));
+    var timeDiff = timeDiff % (60 * 1000);
+    var minutesFD = Math.floor(timeDiffForDisplay / (60 * 1000));
+    var timeDiffForDisplay = timeDiffForDisplay % (60 * 1000);
+
+    var seconds = Math.floor(timeDiff / 1000);
+    var milliseconds = timeDiff % 1000;
+    var secondsFD = Math.floor(timeDiffForDisplay / 1000);
+    var millisecondsFD = timeDiffForDisplay % 1000;
+
+    hours = (hours < 10) ? "0" + hours : hours;
+    minutes = (minutes < 10) ? "0" + minutes : minutes;
+    seconds = (seconds < 10) ? "0" + seconds : seconds;
+    milliseconds = (milliseconds < 10) ? "00" + milliseconds : (milliseconds < 100) ? "0" + milliseconds : milliseconds;
+
+    hoursFD = (hoursFD < 10) ? "0" + hoursFD : hoursFD;
+    mintuesFD = (mintuesFD < 10) ? "0" + mintuesFD : mintuesFD;
+    secondsFD = (secondsFD < 10) ? "0" + secondsFD : secondsFD;
+    millisecondsFD = (millisecondsFD < 10) ? "00" + millisecondsFD : (millisecondsFD < 100) ? "0" + millisecondsFD : millisecondsFD;
+
+    var start = hours + ":" + minutes + ":" + seconds + "." + milliseconds;
+    var end = hoursFD + ":" + minutesFD + ":" + secondsFD + "." + millisecondsFD;
+
+    const entry = {
+      start: start,
+      end: end
+      text: 'Eventname from JSON'
+    }
+  })
+
+  // 3 Choose the
+  chrome.storage.sync.set({
+    jsonData: jsonRaw,
+    webVTTRaw: webVTTRaw,
+  })
 }

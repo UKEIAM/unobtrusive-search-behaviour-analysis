@@ -23,7 +23,10 @@ document.addEventListener("click", (event) => {
             y: event.y
         },
         timeStamp: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
-        timeStampVTT: hoursVTT + ":" + minutesVTT + ":" + secondsVTT + "." + millisecondsVTT,
+        hours: hours,
+        minutes: minutes,
+        seconds: seconds,
+        milliseconds: milliseconds
     }
     chrome.runtime.sendMessage({ message: "click_tracked", data: click_data })
 })

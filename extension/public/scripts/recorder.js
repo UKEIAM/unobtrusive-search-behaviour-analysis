@@ -102,3 +102,18 @@ function download () {
   URL.revokeObjectURL(url);
   sendRecordedChunks()
 }
+
+function parseToWebVTT() {
+  const fs = require('fs')
+  // EXAMPLE how it can be parsed
+  const webvtt = 'WEBVTT\n\n';
+
+  // iterate over the captions and create a WebVTT cue for each one
+  obj.forEach(caption => {
+    webvtt += `${caption.start} --> ${caption.end}\n`;
+    webvtt += `${caption.text}\n\n`;
+  });
+
+  // save the WebVTT file
+  fs.writeFileSync('captions.vtt', webvtt);
+}

@@ -15,7 +15,7 @@ chrome.runtime.onMessage.addListener(
       stopCapture()
     }
     if(request.message === 'download') {
-      download()
+      parseToWebVTT()
     }
   }
 )
@@ -86,11 +86,10 @@ function changeRecordingState() {
   })
 }
 
-function download () {
-  // Not working if download is called after Feedback loop -> Possibly needs to be saved into storage, but recordedChunks could be too large
+function download (file) {
   console.log("Downloading...")
   console.log(recorder.state)
-  const blob = new Blob(recordedChunks)
+  const blob = new Blob(file)
   const link = document.createElement('a');
   link.style.display = "none";
   const url = URL.createObjectURL(blob);
@@ -104,8 +103,15 @@ function download () {
 }
 
 function parseToWebVTT() {
-  const fs = require('fs')
+
+  // Correct import?
+  const ffmpeg = require("ffmpeg.js");
   // EXAMPLE how it can be parsed
+  const webVTTRaw = undefined
+  chrome.storage.sync.get(["webVTTRaw"]).then((resp) => {
+    webVTTRaw = resp.webVTTRaw
+  })
+  obj = JSON.parse(webVTTRaw)
   const webvtt = 'WEBVTT\n\n';
 
   // iterate over the captions and create a WebVTT cue for each one
@@ -115,5 +121,12 @@ function parseToWebVTT() {
   });
 
   // save the WebVTT file
-  fs.writeFileSync('captions.vtt', webvtt);
+  chrome.storage.sync.set({
+    webVTT: webvtt
+  })
+  // Not sure if this is going to work correctly
+  let newVideoFile = null
+  ffmpeg().input(recordedChunks).input(webvtt).output(newVideoFile).run()
+
+  download(newVideoFile)
 }

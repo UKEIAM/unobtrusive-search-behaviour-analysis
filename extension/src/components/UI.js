@@ -143,20 +143,17 @@ function UI(props) {
             recording: false,
           })
     }
-    const continueProcessing = (value) => {
-        console.log("Continuing")
+    async function continueProcessing () {
         chrome.storage.sync.get(['result']).then((resp) => {
             console.log(resp)
         })
-        // TODO: For debugging. Download should be triggered from downloader.js after preprocessing is finished
+        await chrome.runtime.sendMessage({ message: "feedback_recieved" })
         if (userOptions.screen) {
             chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
                 chrome.tabs.sendMessage(tabs[0].id, { message: "download" }).then((resp) => {
                 })
             })
         }
-        // TODO: Not working
-        chrome.runtime.sendMessage({ message: "feedback_recieved" })
     }
 
     return (

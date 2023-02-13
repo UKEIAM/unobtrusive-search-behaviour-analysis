@@ -2,7 +2,7 @@ let recording = false;
 const startTimeStamp = new Date()
 // MAIN FUNCTION ORCHESTRATION
 chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
+  async function(request, sender, sendResponse) {
     console.log("Message recieved: " + request.message)
     if (request.message === "start_capture") {
       console.log("Screen capture started")
@@ -36,14 +36,16 @@ chrome.runtime.onMessage.addListener(
     // Message from recorder
     if (request.message === "capture_stopped") {
       // handleDownload()
-      processJSON()
-      stopNavigationTracking()
-      stopMouseTracking()
+      //stopNavigationTracking()
+      //stopMouseTracking()
       recording = false
       // uploadRecordingToServer(data.recordedChunks)
     }
     if (request.message === "feedback_recieved") {
       console.log("Feedback finished. Processing data...")
+      await processJSON()
+      stopNavigationTracking()
+      stopMouseTracking()
       // TODO: Debugg downloading of raw data
       // Consider more logic befor downlaoding
       // handleDownload(request.data)
@@ -57,11 +59,10 @@ let mouseTracking = []
 let navigationData = []
 
 // FUNCTIONS
-function handleDownload(feedback) {
+function handleDownload() {
   console.log("Download")
-  let searchFeedback = { success: feedback}
   chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-    chrome.tabs.sendMessage(tabs[0].id, { message: "download", data: [searchFeedback, mouseTracking, navigationData] })
+    chrome.tabs.sendMessage(tabs[0].id, { message: "download" })
   })
   stopMouseTracking()
   stopNavigationTracking()
@@ -221,11 +222,12 @@ function processJSON() {
     webVTTRaw.push(entry)
   })
 
-  // 3 Choose the
+  // Save to local storage
   chrome.storage.sync.set({
     jsonData: jsonRaw,
     webVTTRaw: webVTTRaw,
   })
 
-  
+  // Handle download of json files
+  handleDownload()
 }

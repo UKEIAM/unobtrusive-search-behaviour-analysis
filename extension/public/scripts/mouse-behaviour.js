@@ -34,8 +34,8 @@ function startClickTracking() {
                 x: event.x,
                 y: event.y
             },
-            timeStampVTT: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
-            timeStamp: date.getTime(),
+            timeStamp: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
+            timeStampMili: date.getTime(),
             hours: hours,
             minutes: minutes,
             seconds: seconds,
@@ -59,8 +59,8 @@ function startClickTracking() {
                 x: event.x,
                 y: event.y
             },
-            timeStampVTT: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
-            timeStamp: date.getTime(),
+            timeStamp: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
+            timeStampMili: date.getTime(),
             hours: hours,
             minutes: minutes,
             seconds: seconds,
@@ -94,29 +94,6 @@ function startClickTracking() {
         }
 
         chrome.runtime.sendMessage({ message: "click_tracked", data: click_data })
-
-        // let click_data = {
-        //     tag: event.target.localName,
-        //     domElementMeta: {
-        //         outerText: event.target.outerText,
-        //         outerHTML: event.target.outerHTML,
-        //         innerText: event.target.innerText,
-        //         innerHTML: event.target.innerHTML,
-        //         ownerDocument: event.target.ownerDocument.location,
-        //         URL: event.target.ownerDocument.URL
-        //     },
-        //     coordinates: {
-        //         x: event.x,
-        //         y: event.y
-        //     },
-        //     timeStampVTT: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
-        //     timeStamp: date.getTime(),
-        //     hours: hours,
-        //     minutes: minutes,
-        //     seconds: seconds,
-        //     milliseconds: milliseconds
-        // }
-        //chrome.runtime.sendMessage({ message: "click_tracked", data: click_data })
     })
 }
 

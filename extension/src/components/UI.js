@@ -81,39 +81,37 @@ function UI(props) {
         });
       };
 
-        const startRecording = () => {
-            chrome.storage.local.set({
-                recording: true,
-            })
-            setRecording(true)
-            if (userOptions.screen) {
-                chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-                    chrome.tabs.sendMessage(tabs[0].id, { message: "start" }).then((resp) => {
-                    })
+    const startRecording = () => {
+        const initialTimeStamp = new Date().getTime()
+        console.log(initialTimeStamp)
+        chrome.storage.local.set({
+            recording: true,
+            initialTimeStamp: initialTimeStamp,
+        })
+        setRecording(true)
+        if (userOptions.screen) {
+            chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+                chrome.tabs.sendMessage(tabs[0].id, { message: "start" }).then((resp) => {
                 })
-            }
-
-            if (userOptions.navigation) {
-                chrome.runtime.sendMessage({ message: "start_navigation_tracking"})
-            }
-
-            if(userOptions.mouse) {
-                // chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-                //     chrome.tabs.sendMessage(tabs[0].id, { message: "start_click_tracking" }).then((resp) => {
-                //     })
-                // })
-
-                chrome.runtime.sendMessage({ message: "start_click_tracking" })
-            }
-
-            chrome.storage.local.set({
-                userOptions: {
-                    screen: userOptions.screen,
-                    navigation: userOptions.navigation,
-                    mouse: userOptions.mouse
-                },
             })
         }
+
+        if (userOptions.navigation) {
+            chrome.runtime.sendMessage({ message: "start_navigation_tracking"})
+        }
+
+        if(userOptions.mouse) {
+            chrome.runtime.sendMessage({ message: "start_click_tracking" })
+        }
+
+        chrome.storage.local.set({
+            userOptions: {
+                screen: userOptions.screen,
+                navigation: userOptions.navigation,
+                mouse: userOptions.mouse
+            },
+        })
+    }
 
     const stopRecording = () => {
         setRecording(false)

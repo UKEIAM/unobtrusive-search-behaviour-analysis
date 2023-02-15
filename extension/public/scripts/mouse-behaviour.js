@@ -34,8 +34,8 @@ function startClickTracking() {
                 x: event.x,
                 y: event.y
             },
-            timeStamp: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
-            timeStampMili: date.getTime(),
+            timeStampVTT: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
+            timeStamp: date.getTime(),
             hours: hours,
             minutes: minutes,
             seconds: seconds,
@@ -59,8 +59,8 @@ function startClickTracking() {
                 x: event.x,
                 y: event.y
             },
-            timeStamp: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
-            timeStampMili: date.getTime(),
+            timeStampVTT: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
+            timeStamp: date.getTime(),
             hours: hours,
             minutes: minutes,
             seconds: seconds,
@@ -85,8 +85,8 @@ function startClickTracking() {
                 x: event.x,
                 y: event.y
             },
-            timeStamp: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
-            timeStampMili: date.getTime(),
+            timeStampVTT: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
+            timeStamp: date.getTime(),
             hours: hours,
             minutes: minutes,
             seconds: seconds,

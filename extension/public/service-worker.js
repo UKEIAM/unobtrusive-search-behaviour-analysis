@@ -30,6 +30,8 @@ chrome.runtime.onMessage.addListener(
     }
     if (request.message === "feedback_recieved") {
       console.log("Feedback finished. Processing data...")
+      stopClickTracking()
+      stopNavigationTracking()
       await preprocessJSON().then(() => {
         sendResponse({resp: 'rawJSON Saved'})
       })
@@ -54,13 +56,15 @@ function formatNavigationData(data) {
   var minutes = date.getMinutes();
   var seconds = date.getSeconds();
   var milliseconds = date.getMilliseconds();
-  data.timeStamp = hours + ":" + minutes + ":" + seconds + "." + milliseconds
-  data.timeStampMili = date.getTime()
+  data.timeStampVTT = hours + ":" + minutes + ":" + seconds + "." + milliseconds
+  data.timeStamp = date.getTime()
   data.hours = hours
   data.minutes = minutes
   data.seconds = seconds
   data.milliseconds = milliseconds
-  navigationData.push(data)
+  if (data.transitionType !== 'auto_subframe'){
+    navigationData.push(data)
+  }
 }
 
 function uploadRecordingToServer(recordedChunks) {
@@ -112,9 +116,13 @@ function startClickTracking() {
 }
 
 function stopClickTracking() {
-  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-    chrome.tabs.sendMessage(tabs[0].id, { message: "stop_click_tracking" }).then((resp) => {
-    })
+  chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
+    if(changeInfo.status == "complete") {
+      chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+        chrome.tabs.sendMessage(tabs[0].id, { message: "stop_click_tracking" }).then((resp) => {
+        })
+      })
+    }
   })
 }
 
@@ -139,7 +147,6 @@ async function preprocessJSON() {
   // chrome.storage.sync.set({
   //   rawJSON: rawJSON
   // })
-  console.log(rawJSON)
   await chrome.storage.local.set({
     rawJSON: rawJSON
   }).then(() =>

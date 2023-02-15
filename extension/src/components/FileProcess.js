@@ -5,11 +5,17 @@ import moment from "moment";
 
 async function FileProcess() {
     let rawJSON = undefined
+    let initialTimeStamp = undefined
+    await chrome.storage.local.get(['initialTimeStamp']).then((resp) => {
+        initialTimeStamp = resp.initialTimeStamp
+        console.log(initialTimeStamp)
+    })
     await chrome.storage.local.get(['rawJSON']).then((resp) => {
         rawJSON = resp.rawJSON
         console.log(rawJSON)
         processJSON(resp.rawJSON)
     })
+
 
     async function processJSON(rawJSON) {
         let webVTTRaw = []
@@ -26,39 +32,50 @@ async function FileProcess() {
         rawJSON.clickData.forEach((row) =>{
             let nestedDict = {
                 timeStamp: row['timeStamp'],
-                text: 'Click on <' + row["tag"] + '>' + 'x-coordinate: ' + row['coordinates']['x'] + ' y-coordinate: ' + row['coordinates']['y']
+                text: 'Click on <' + row["tag"] + '> ' + 'x-coordinate: ' + row['coordinates']['x'] + ' y-coordinate: ' + row['coordinates']['y']
             }
             raw.push(nestedDict)
         })
 
+        raw.sort((a, b) => {
+            return a.timeStamp - b.timeStamp
+        })
+
+        // deduplicate
+        raw = raw.filter((value, index, self) =>
+            index === self.findIndex((t) => (
+                t.text === value.text && t.timeStamp === value.timeStamp
+            ))
+        )
+        console.log(raw)
+
         // 2. For each row in the new JSON, create the difference between the first timeStamp and all others
         // 2.1
-        raw.forEach((row) => {
-          const date = new Date(Date.parse(`1970-01-01T${row['timeStamp']}Z`));
-          const timeStamp = date.getTime()
-          const timeValue = moment.duration(timeStamp).asMilliseconds();
-          const startTimeStamp = moment.utc(timeValue).format('HH:mm:ss.SSS');
+        raw.forEach((row, index) => {
+          let mTimeStamp = moment(row.timeStamp)
+          console.log(mTimeStamp)
+          let timeStamp = mTimeStamp.diff(ini)
+          console.log(timeStamp)
+          let startTime =  moment.utc(timeStamp).format('HH:mm:ss.SSS');
+          console.log(startTime)
 
-          date.setSeconds(date.getSeconds() + 2);
-          const endTS = date.getTime()
-          const endTimeValue = moment.duration(endTS).asMilliseconds();
-          const endTimeStamp = moment.utc(endTimeValue).format('HH:mm:ss.SSS');
+             let nxtTimeStamp =  raw[index]["timeStamp"]
+          let endTimeStamp = (initialTimeStamp - nxtTimeStamp) //2 seconds
+          let endTime = moment.utc(endTimeStamp).format('HH:mm:ss.SSS');
 
-          console.log(endTimeStamp)
-          console.log(startTimeStamp);
-          console.log(endTimeStamp);
+          console.log(startTime);
+          console.log(endTime);
 
-          const entry = {
-            start: startTimeStamp,
-            end: endTimeStamp,
+          let entry = {
+            start: startTime,
+            end: endTime,
             text: row['text']
           }
-
           webVTTRaw.push(entry)
         })
 
         console.log("JSON Raw")
-        console.log(rawJSON)
+        console.log(raw)
         console.log("WebVTTRaw")
         console.log(webVTTRaw)
 

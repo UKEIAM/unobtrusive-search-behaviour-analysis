@@ -1,7 +1,6 @@
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-        if (request.message === 'download') {
-            console.log('Entered downloader...')
+        if (request.message === 'downloadRawData') {
             download(request.data)
         }
 })

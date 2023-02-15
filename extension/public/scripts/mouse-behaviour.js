@@ -22,7 +22,8 @@ document.addEventListener("click", (event) => {
             x: event.x,
             y: event.y
         },
-        timeStamp: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
+        timeStampVTT: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
+        timeStamp: date.getTime(),
         hours: hours,
         minutes: minutes,
         seconds: seconds,

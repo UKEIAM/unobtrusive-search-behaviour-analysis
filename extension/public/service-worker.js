@@ -1,3 +1,6 @@
+import moment from 'moment'
+import ffmpeg from 'ffmpeg.js/ffmpeg-worker-webm'
+
 let recording = false;
 const startTimeStamp = new Date()
 // MAIN FUNCTION ORCHESTRATION
@@ -18,7 +21,6 @@ chrome.runtime.onMessage.addListener(
     }
     // Track any click evenet
     if (request.message === "click_tracked") {
-      console.log(request.data)
       mouseTracking.push(request.data)
     }
     if (request.message === "reset") {
@@ -29,27 +31,16 @@ chrome.runtime.onMessage.addListener(
     }
      // Message from user
      if (request.message === "stop_recording") {
-      stopNavigationTracking()
-      stopMouseTracking()
       recording = false
     }
     // Message from recorder
-    if (request.message === "capture_stopped") {
-      // handleDownload()
-      //stopNavigationTracking()
-      //stopMouseTracking()
+    if (request.message === "capture_stopped") {
+      recordedChunks = request.data
       recording = false
-      // uploadRecordingToServer(data.recordedChunks)
     }
     if (request.message === "feedback_recieved") {
       console.log("Feedback finished. Processing data...")
-      await processJSON()
-      stopNavigationTracking()
-      stopMouseTracking()
-      // TODO: Debugg downloading of raw data
-      // Consider more logic befor downlaoding
-      // handleDownload(request.data)
-      // uploadRecordingToServer()
+      processJSON()
     }
   });
 
@@ -57,12 +48,21 @@ chrome.runtime.onMessage.addListener(
 // VARIABLES
 let mouseTracking = []
 let navigationData = []
+let recordedChunks = []
 
 // FUNCTIONS
-function handleDownload() {
-  console.log("Download")
+function handleDownload(finalRecording) {
+  console.log("Downloading...")
+  if (finalRecording) {
+ // chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+  //   chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRecording", data: finalRecording})
+  // })
+  console.log("DEBUG: Recording passed to download")
+  }
   chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-    chrome.tabs.sendMessage(tabs[0].id, { message: "download" })
+    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+    chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawData", data: rawJSON})
+    })
   })
   stopMouseTracking()
   stopNavigationTracking()
@@ -77,7 +77,8 @@ function formatNavigationData(data) {
   var minutes = date.getMinutes();
   var seconds = date.getSeconds();
   var milliseconds = date.getMilliseconds();
-  data.timeStamp = hours + ":" + minutes + ":" + seconds + "." + milliseconds
+  data.timeStampVTT = hours + ":" + minutes + ":" + seconds + "." + milliseconds
+  data.timeStamp = date.getTime()
   data.hours = hours
   data.minutes = minutes
   data.seconds = seconds
@@ -149,23 +150,32 @@ function stopMouseTracking() {
   mouseTracking = []
 }
 
-function processJSON() {
+async function processJSON() {
   // 1. Create concat file from NavData, ClickData & Feedback
-  const label = chrome.storage.sync.get(['label'])
-  let jsonRaw = {
+  let label = undefined
+  let screen = true
+
+  await chrome.storage.sync.get(['screen']).then((resp) => {
+    screen = resp.screen
+  })
+  await chrome.storage.sync.get(['label']).then((resp) => {
+    label = resp.label
+    })
+
+  rawJSON = {
     navData: navigationData,
     clickData: mouseTracking,
     label: label
   }
-  chrome.storage.sync.set({
-    jsonRaw: jsonRaw
-  })
+  // chrome.storage.sync.set({
+  //   rawJSON: rawJSON
+  // })
 
   let raw = []
   navigationData.forEach((row) =>{
     let nestedDict = {
       timeStamp: row['timeStamp'],
-      text: row['transistionType']
+      text: row['transitionType']
     }
     raw.push(nestedDict)
   })
@@ -179,46 +189,63 @@ function processJSON() {
   })
 
   let webVTTRaw = []
+  let rawJSON = []
   let base = new Date("1970-01-01T" + startTimeStamp);
   // 2. For each row in the new JSON, create the difference between the first timeStamp and all others
   // 2.1
   raw.forEach((row) => {
     // transform Timestamp
-    var date2 = new Date("1970-01-01T" + row['timeStamp']); //get correct timestamp value from row
-    var timeDiff = date2.getTime() - base.getTime();
-    var timeDiffForDisplay = (date2.getTime()+200) - base.getTime(); // Add 2 secnonds of display
+    // console.log(row['timeStamp'])
+    // var date2 = new Date(row['timeStamp']); //get correct timestamp value
+    // console.log(date2)
+    // var timeDiff = date2.getTime() - base.getTime();
+    // console.log("Timediff:" + timeDiff)
+    // var timeDiffForDisplay = (date2.getTime()+200) - base.getTime(); // Add 2 secnonds of display
+    // console.log("Timediff:" + timeDiffForDisplay)
 
-    var hours = Math.floor(timeDiff / (60 * 60 * 1000));
-    var timeDiff = timeDiff % (60 * 60 * 1000);
-    var hoursFD = Math.floor(timeDiffForDisplay / (60 * 60 * 1000));
-    var timeDiffForDisplay = timeDiffForDisplay % (60 * 60 * 1000);
+    // var hours = Math.floor(timeDiff / (60 * 60 * 1000));
+    // var timeDiff = timeDiff % (60 * 60 * 1000);
+    // var hoursFD = Math.floor(timeDiffForDisplay / (60 * 60 * 1000));
+    // var timeDiffForDisplay = timeDiffForDisplay % (60 * 60 * 1000);
 
-    var minutes = Math.floor(timeDiff / (60 * 1000));
-    var timeDiff = timeDiff % (60 * 1000);
-    var minutesFD = Math.floor(timeDiffForDisplay / (60 * 1000));
-    var timeDiffForDisplay = timeDiffForDisplay % (60 * 1000);
+    // var minutes = Math.floor(timeDiff / (60 * 1000));
+    // var timeDiff = timeDiff % (60 * 1000);
+    // var minutesFD = Math.floor(timeDiffForDisplay / (60 * 1000));
+    // var timeDiffForDisplay = timeDiffForDisplay % (60 * 1000);
 
-    var seconds = Math.floor(timeDiff / 1000);
-    var milliseconds = timeDiff % 1000;
-    var secondsFD = Math.floor(timeDiffForDisplay / 1000);
-    var millisecondsFD = timeDiffForDisplay % 1000;
+    // var seconds = Math.floor(timeDiff / 1000);
+    // var milliseconds = timeDiff % 1000;
+    // var secondsFD = Math.floor(timeDiffForDisplay / 1000);
+    // var millisecondsFD = timeDiffForDisplay % 1000;
 
-    hours = (hours < 10) ? "0" + hours : hours;
-    minutes = (minutes < 10) ? "0" + minutes : minutes;
-    seconds = (seconds < 10) ? "0" + seconds : seconds;
-    milliseconds = (milliseconds < 10) ? "00" + milliseconds : (milliseconds < 100) ? "0" + milliseconds : milliseconds;
+    // hours = (hours < 10) ? "0" + hours : hours;
+    // minutes = (minutes < 10) ? "0" + minutes : minutes;
+    // seconds = (seconds < 10) ? "0" + seconds : seconds;
+    // milliseconds = (milliseconds < 10) ? "00" + milliseconds : (milliseconds < 100) ? "0" + milliseconds : milliseconds;
 
-    hoursFD = (hoursFD < 10) ? "0" + hoursFD : hoursFD;
-    mintuesFD = (mintuesFD < 10) ? "0" + mintuesFD : mintuesFD;
-    secondsFD = (secondsFD < 10) ? "0" + secondsFD : secondsFD;
-    millisecondsFD = (millisecondsFD < 10) ? "00" + millisecondsFD : (millisecondsFD < 100) ? "0" + millisecondsFD : millisecondsFD;
+    // hoursFD = (hoursFD < 10) ? "0" + hoursFD : hoursFD;
+    // minutesFD = (minutesFD < 10) ? "0" + minutesFD : minutesFD;
+    // secondsFD = (secondsFD < 10) ? "0" + secondsFD : secondsFD;
+    // millisecondsFD = (millisecondsFD < 10) ? "00" + millisecondsFD : (millisecondsFD < 100) ? "0" + millisecondsFD : millisecondsFD;
 
-    var start = hours + ":" + minutes + ":" + seconds + "." + milliseconds;
-    var end = hoursFD + ":" + minutesFD + ":" + secondsFD + "." + millisecondsFD;
+    // var start = hours + ":" + minutes + ":" + seconds + "." + milliseconds;
+    // console.log("modified timestamp: " + start, hours, minutes, seconds)
+    // var end = hoursFD + ":" + minutesFD + ":" + secondsFD + "." + millisecondsFD;
+    const moment = moment()
+    const timestamp = row["timestamp"];
+    const timeValue = moment.duration(timestamp).asMilliseconds();
+    const startTimeStamp = moment.utc(timeValue).format('HH:mm:ss.SSS');
+
+    const date = new Date(Date.parse(`1970-01-01T${startTimeStamp}Z`));
+    date.setSeconds(date.getSeconds() + 2);
+    const endTimeStamp = date.toISOString().substring(11, 12);
+    console.log(startTimeStamp); // Output: 00:01:32.000
+    console.log(endTimeStamp); // output formatted timestamp
+
 
     const entry = {
-      start: start,
-      end: end,
+      start: startTimeStamp,
+      end: endTimeStamp,
       text: row['text']
     }
 
@@ -226,11 +253,47 @@ function processJSON() {
   })
 
   // Save to local storage
-  chrome.storage.sync.set({
-    jsonData: jsonRaw,
-    webVTTRaw: webVTTRaw,
-  })
+  // chrome.storage.sync.set({
+  //   jsonData: rawJSON,
+  //   webVTTRaw: webVTTRaw,
+  // })
 
-  // Handle download of json files
-  handleDownload()
+  console.log("JSON Raw")
+  console.log(rawJSON)
+  console.log("WebVTTRaw")
+  console.log(webVTTRaw)
+  if (screen) {
+    await embedSubtitles(webVTTRaw).then((resp) =>{
+      handleDownload(resp.outputFilename)
+    })}
+  else {
+    handleDownload()
+  }
+}
+
+async function embedSubtitles(webVTTRaw) {
+  const ffmpeg = ffmpeg()
+  const timeStamp = new Date()
+  // EXAMPLE how it can be parsed
+  const obj = webVTTRaw;
+  const webvtt = 'WEBVTT\n\n';
+
+  // iterate over the captions and create a WebVTT cue for each one
+  obj.forEach(caption => {
+    webvtt += `${caption.start} --> ${caption.end}\n`;
+    webvtt += `${caption.text}\n\n`;
+  });
+
+  // Run FFmpeg to embed the subtitles in the video
+  const outputFilename = `${timeStamp}_usba.mp4`;
+  const args = [
+    "-i", recordedChunks,
+    "-i", "data:text/vtt;base64," + btoa(webvtt),
+    "-c", "copy",
+    outputFilename
+  ];
+  ffmpeg().run(...args);
+
+  // Download the output file
+  return outputFilename
 }

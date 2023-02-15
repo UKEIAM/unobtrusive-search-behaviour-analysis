@@ -14,8 +14,8 @@ chrome.runtime.onMessage.addListener(
       console.log("Stopped screen capturing")
       stopCapture()
     }
-    if(request.message === 'download') {
-      parseToWebVTT()
+    if(request.message === 'downloadRecording') {
+      download(request.data)
     }
   }
 )
@@ -102,31 +102,4 @@ function download (file) {
   sendRecordedChunks()
 }
 
-function parseToWebVTT() {
 
-  // Correct import?
-  const ffmpeg = require("ffmpeg.js");
-  // EXAMPLE how it can be parsed
-  const webVTTRaw = undefined
-  chrome.storage.sync.get(["webVTTRaw"]).then((resp) => {
-    webVTTRaw = resp.webVTTRaw
-  })
-  obj = JSON.parse(webVTTRaw)
-  const webvtt = 'WEBVTT\n\n';
-
-  // iterate over the captions and create a WebVTT cue for each one
-  obj.forEach(caption => {
-    webvtt += `${caption.start} --> ${caption.end}\n`;
-    webvtt += `${caption.text}\n\n`;
-  });
-
-  // save the WebVTT file
-  chrome.storage.sync.set({
-    webVTT: webvtt
-  })
-  // Not sure if this is going to work correctly
-  let newVideoFile = null
-  ffmpeg().input(recordedChunks).input(webvtt).output(newVideoFile).run()
-
-  download(newVideoFile)
-}

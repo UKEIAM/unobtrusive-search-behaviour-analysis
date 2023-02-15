@@ -1,5 +1,5 @@
-import moment from 'moment'
-import ffmpeg from 'ffmpeg.js/ffmpeg-worker-webm'
+import moment from '/node_modules/moment'
+import ffmpeg from '/node_modules/ffmpeg.js/ffmpeg-worker-webm'
 
 let recording = false;
 const startTimeStamp = new Date()
@@ -194,44 +194,7 @@ async function processJSON() {
   // 2. For each row in the new JSON, create the difference between the first timeStamp and all others
   // 2.1
   raw.forEach((row) => {
-    // transform Timestamp
-    // console.log(row['timeStamp'])
-    // var date2 = new Date(row['timeStamp']); //get correct timestamp value
-    // console.log(date2)
-    // var timeDiff = date2.getTime() - base.getTime();
-    // console.log("Timediff:" + timeDiff)
-    // var timeDiffForDisplay = (date2.getTime()+200) - base.getTime(); // Add 2 secnonds of display
-    // console.log("Timediff:" + timeDiffForDisplay)
 
-    // var hours = Math.floor(timeDiff / (60 * 60 * 1000));
-    // var timeDiff = timeDiff % (60 * 60 * 1000);
-    // var hoursFD = Math.floor(timeDiffForDisplay / (60 * 60 * 1000));
-    // var timeDiffForDisplay = timeDiffForDisplay % (60 * 60 * 1000);
-
-    // var minutes = Math.floor(timeDiff / (60 * 1000));
-    // var timeDiff = timeDiff % (60 * 1000);
-    // var minutesFD = Math.floor(timeDiffForDisplay / (60 * 1000));
-    // var timeDiffForDisplay = timeDiffForDisplay % (60 * 1000);
-
-    // var seconds = Math.floor(timeDiff / 1000);
-    // var milliseconds = timeDiff % 1000;
-    // var secondsFD = Math.floor(timeDiffForDisplay / 1000);
-    // var millisecondsFD = timeDiffForDisplay % 1000;
-
-    // hours = (hours < 10) ? "0" + hours : hours;
-    // minutes = (minutes < 10) ? "0" + minutes : minutes;
-    // seconds = (seconds < 10) ? "0" + seconds : seconds;
-    // milliseconds = (milliseconds < 10) ? "00" + milliseconds : (milliseconds < 100) ? "0" + milliseconds : milliseconds;
-
-    // hoursFD = (hoursFD < 10) ? "0" + hoursFD : hoursFD;
-    // minutesFD = (minutesFD < 10) ? "0" + minutesFD : minutesFD;
-    // secondsFD = (secondsFD < 10) ? "0" + secondsFD : secondsFD;
-    // millisecondsFD = (millisecondsFD < 10) ? "00" + millisecondsFD : (millisecondsFD < 100) ? "0" + millisecondsFD : millisecondsFD;
-
-    // var start = hours + ":" + minutes + ":" + seconds + "." + milliseconds;
-    // console.log("modified timestamp: " + start, hours, minutes, seconds)
-    // var end = hoursFD + ":" + minutesFD + ":" + secondsFD + "." + millisecondsFD;
-    const moment = moment()
     const timestamp = row["timestamp"];
     const timeValue = moment.duration(timestamp).asMilliseconds();
     const startTimeStamp = moment.utc(timeValue).format('HH:mm:ss.SSS');
@@ -272,7 +235,6 @@ async function processJSON() {
 }
 
 async function embedSubtitles(webVTTRaw) {
-  const ffmpeg = ffmpeg()
   const timeStamp = new Date()
   // EXAMPLE how it can be parsed
   const obj = webVTTRaw;

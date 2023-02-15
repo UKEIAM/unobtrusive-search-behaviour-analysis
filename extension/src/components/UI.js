@@ -1,37 +1,37 @@
 /*global chrome*/
+import React, { useState, useEffect } from "react"
 import Checkbox from "@mui/material/Checkbox"
 import { IconButton, Grid, Snackbar } from "@mui/material"
 import { RiStopCircleLine } from "react-icons/ri"
 import { MdOutlineNotStarted } from "react-icons/md"
 import { BiReset } from "react-icons/bi"
 import "./UI.css"
-import React, { useState, useEffect } from "react"
 import ResetDialog from "@components/ResetDialog"
 import FormControlLabel from "@mui/material/FormControlLabel"
 import FormGroup from "@mui/material/FormGroup"
 import FeedbackWidget from "@components/FeedbackWidget"
-
+import FileProcess from "./FileProcess"
 
 
 function UI(props) {
     const { debug } = props;
 
     useEffect(() => {
-        chrome.storage.sync.get(["recording"]).then((result) => {
+        chrome.storage.local.get(["recording"]).then((result) => {
             setRecording(result.recording)
             console.log(result.recording)
         })
     }, [])
 
     useEffect(() => {
-        chrome.storage.sync.get(["userOptions"]).then((result) => {
+        chrome.storage.local.get(["userOptions"]).then((result) => {
             console.log(result)
             setUserOptions({...userOptions, screen: result.userOptions.screen, navigation: result.userOptions.navigation, mouse: result.userOptions.mouse})
         })
     }, [])
 
     useEffect(() => {
-        chrome.storage.sync.get(["triggerFeedback"]).then((result) => {
+        chrome.storage.local.get(["triggerFeedback"]).then((result) => {
             console.log(result.triggerFeedback)
             setTriggerFeedback(result.triggerFeedback)
         })
@@ -82,32 +82,36 @@ function UI(props) {
       };
 
         const startRecording = () => {
+            chrome.storage.local.set({
+                recording: true,
+            })
             setRecording(true)
             if (userOptions.screen) {
                 chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
                     chrome.tabs.sendMessage(tabs[0].id, { message: "start" }).then((resp) => {
                     })
                 })
-                chrome.runtime.sendMessage({ message: "start_capture" })
             }
 
             if (userOptions.navigation) {
-                chrome.runtime.sendMessage({ message: "start_navigation_tracking"
-                })
+                chrome.runtime.sendMessage({ message: "start_navigation_tracking"})
             }
 
             if(userOptions.mouse) {
-                chrome.runtime.sendMessage({ message: "start_mouse_tracking"
-                })
+                // chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+                //     chrome.tabs.sendMessage(tabs[0].id, { message: "start_click_tracking" }).then((resp) => {
+                //     })
+                // })
+
+                chrome.runtime.sendMessage({ message: "start_click_tracking" })
             }
 
-            chrome.storage.sync.set({
+            chrome.storage.local.set({
                 userOptions: {
                     screen: userOptions.screen,
                     navigation: userOptions.navigation,
                     mouse: userOptions.mouse
                 },
-                recording: true
             })
         }
 
@@ -115,7 +119,7 @@ function UI(props) {
         setRecording(false)
         setTriggerFeedback(true)
         chrome.runtime.sendMessage({ message: "stop_recording"});
-         chrome.storage.sync.set({
+         chrome.storage.local.set({
             recording: false,
             triggerFeedback: true
         })
@@ -134,7 +138,7 @@ function UI(props) {
     // Reset recorder after triggering reset button or after successful recording and feedback
     const resetRecorder = () => {
         chrome.runtime.sendMessage({ message: "reset" })
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
             userOptions: {
                 screen: true,
                 navigation: true,
@@ -144,20 +148,12 @@ function UI(props) {
           })
     }
     async function continueProcessing () {
-        chrome.storage.sync.get(['result']).then((resp) => {
-            console.log(resp.result)
+        console.log('Processing data...')
+        await chrome.runtime.sendMessage({ message: "feedback_recieved" }).then(() => {
+            console.log('JSONs processed')
+            // Call file preprocessor
+            FileProcess()
         })
-        await chrome.runtime.sendMessage({ message: "feedback_recieved" })
-        console.log('JSONs processed')
-        chrome.storage.sync.get(['webVTTRaw']).then((resp) => {
-            console.log(resp.webVTTRaw)
-        })
-        if (userOptions.screen) {
-            chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-                chrome.tabs.sendMessage(tabs[0].id, { message: "download" }).then((resp) => {
-                })
-            })
-        }
     }
 
     return (

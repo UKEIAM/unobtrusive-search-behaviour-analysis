@@ -1,5 +1,3 @@
-
-console.log('Recorder started')
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if(request.message === 'reset') {
@@ -45,8 +43,14 @@ function startCapture() {
     recorder.ondataavailable = (e) => {
       recordedChunks.push(e.data)
     };
-    recorder.start();
-    console.log(recorder.state);
+    try {
+      recorder.start();
+      chrome.storage.sync.set({
+        recording: true
+    })
+    } catch (error) {
+      console.log("Declined screen sharing")
+    }
 
     recorder.onstop = (e) => {
       changeRecordingState()
@@ -54,12 +58,10 @@ function startCapture() {
         console.log(recorder.state)
       }
       else {
-        // TODO: First change state to trigger feedback component. Then download data.
         chrome.storage.sync.set({
-          triggerFeedback: true
+          triggerFeedback: true,
+          recordedChunks: recordedChunks
         })
-        // TODO: Remove once feedback logic works
-        // download()
       }
     }
   }).catch((err) => { console.error(`Error:${err}`); return })

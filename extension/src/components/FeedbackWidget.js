@@ -14,7 +14,7 @@ function FeedbackWidged(props) {
         setShowThanks(true)
         callBack(value)
         console.log(showThanks)
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
             label: value,
             triggerFeedback: false,
         })

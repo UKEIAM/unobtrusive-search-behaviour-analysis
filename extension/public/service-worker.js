@@ -11,7 +11,7 @@ chrome.runtime.onMessage.addListener(
     }
     // Track any click evenet
     if (request.message === "click_tracked") {
-      console.log("Click recorded: " +request.data)
+      console.log(request.data)
       mouseTracking.push(request.data)
     }
     if (request.message === "reset") {
@@ -54,13 +54,12 @@ function formatNavigationData(data) {
   var minutes = date.getMinutes();
   var seconds = date.getSeconds();
   var milliseconds = date.getMilliseconds();
-  data.timeStampVTT = hours + ":" + minutes + ":" + seconds + "." + milliseconds
-  data.timeStamp = date.getTime()
+  data.timeStamp = hours + ":" + minutes + ":" + seconds + "." + milliseconds
+  data.timeStampMili = date.getTime()
   data.hours = hours
   data.minutes = minutes
   data.seconds = seconds
   data.milliseconds = milliseconds
-  console.log(data)
   navigationData.push(data)
 }
 
@@ -113,13 +112,12 @@ function startClickTracking() {
 }
 
 function stopClickTracking() {
-  chrome.tabs.onCreated.addListener( (tabId, changeInfo, tab) => {
-    if(changeInfo.status == "complete") {
-      chrome.tabs.sendMessage(currentTab, { message: "stop_click_tracking" })
-    }
+  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+    chrome.tabs.sendMessage(tabs[0].id, { message: "stop_click_tracking" }).then((resp) => {
+    })
   })
-  mouseTracking = []
 }
+
 
 async function preprocessJSON() {
   // 1. Create concat file from NavData, ClickData & Feedback
@@ -141,6 +139,7 @@ async function preprocessJSON() {
   // chrome.storage.sync.set({
   //   rawJSON: rawJSON
   // })
+  console.log(rawJSON)
   await chrome.storage.local.set({
     rawJSON: rawJSON
   }).then(() =>

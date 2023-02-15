@@ -150,7 +150,6 @@ function UI(props) {
     async function continueProcessing () {
         console.log('Processing data...')
         await chrome.runtime.sendMessage({ message: "feedback_recieved" }).then(() => {
-            console.log('JSONs processed')
             // Call file preprocessor
             FileProcess()
         })

@@ -3,12 +3,12 @@ import moment from "moment";
 // TODO: ffmpeg is causing build to crash -> heap size
 //import ffmpeg from "ffmpeg.js/ffmpeg-worker-webm";
 
-function FileProcess() {
-    let rawJSON = []
-    chrome.storage.local.get('rawJSON').then((resp) => {
+async function FileProcess() {
+    let rawJSON = undefined
+    await chrome.storage.local.get(['rawJSON']).then((resp) => {
         rawJSON = resp.rawJSON
         console.log(rawJSON)
-        processJSON(rawJSON)
+        processJSON(resp.rawJSON)
     })
 
     async function processJSON(rawJSON) {
@@ -26,7 +26,7 @@ function FileProcess() {
         rawJSON.clickData.forEach((row) =>{
             let nestedDict = {
                 timeStamp: row['timeStamp'],
-                text: 'Click: ' + row['coordinates'] + ' '
+                text: 'Click on <' + row["tag"] + '>' + 'x-coordinate: ' + row['coordinates']['x'] + ' y-coordinate: ' + row['coordinates']['y']
             }
             raw.push(nestedDict)
         })
@@ -34,15 +34,17 @@ function FileProcess() {
         // 2. For each row in the new JSON, create the difference between the first timeStamp and all others
         // 2.1
         raw.forEach((row) => {
-
-          const timestamp = row["timestamp"];
-          const timeValue = moment.duration(timestamp).asMilliseconds();
+          const date = new Date(Date.parse(`1970-01-01T${row['timeStamp']}Z`));
+          const timeStamp = date.getTime()
+          const timeValue = moment.duration(timeStamp).asMilliseconds();
           const startTimeStamp = moment.utc(timeValue).format('HH:mm:ss.SSS');
 
-          const date = new Date(Date.parse(`1970-01-01T${startTimeStamp}Z`));
           date.setSeconds(date.getSeconds() + 2);
+          const endTS = date.getTime()
+          const endTimeValue = moment.duration(endTS).asMilliseconds();
+          const endTimeStamp = moment.utc(endTimeValue).format('HH:mm:ss.SSS');
 
-          const endTimeStamp = date.toISOString().substring(11, 12);
+          console.log(endTimeStamp)
           console.log(startTimeStamp);
           console.log(endTimeStamp);
 
@@ -70,6 +72,7 @@ function FileProcess() {
     }
 
     // async function embedSubtitles(webVTTRaw) {
+           const recordedChunks = await chrome.storage.local.get(['recordedChunks'])
     //     const timeStamp = new Date()
     //     // EXAMPLE how it can be parsed
     //     const obj = webVTTRaw;
@@ -95,24 +98,23 @@ function FileProcess() {
     //     return outputFilename
     // }
 
-    // async function handleDownload(finalRecording) {
-    //     console.log("Downloading...")
-    //     if (finalRecording) {
-    //     // await chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-    //     //   chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRecording", data: finalRecording})
-    //     // }).then(() => {
-    //     chrome.storage.local.set({
-    //         rawJSON: [],
-    //         recordedChunks: []
-    //     })
-    // })
-    //     console.log("DEBUG: Recording passed to download")
-    //     }
+    async function handleDownload(finalRecording) {
+        console.log("Downloading...")
+        if (finalRecording) {
+        // await chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+        //   chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRecording", data: finalRecording})
+        // }).then(() => {
+        chrome.storage.local.set({
+            rawJSON: [],
+            recordedChunks: []
+        })
+        }
+        console.log("DEBUG: Recording passed to download")
 
-    //     chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-    //         chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawData", data: rawJSON})
-    //     })
-    // }
+        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawData", data: rawJSON})
+        })
+    }
 }
 
 export default FileProcess

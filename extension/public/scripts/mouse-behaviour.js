@@ -70,8 +70,6 @@ function startClickTracking() {
     })
 
     document.addEventListener("auxclick", (event) => {
-
-        console.log(event);
         var date = new Date();
         var hours = date.getHours()
         var minutes = date.getMinutes()
@@ -87,8 +85,8 @@ function startClickTracking() {
                 x: event.x,
                 y: event.y
             },
-            timeStampVTT: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
-            timeStamp: date.getTime(),
+            timeStamp: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
+            timeStampMili: date.getTime(),
             hours: hours,
             minutes: minutes,
             seconds: seconds,
@@ -123,7 +121,7 @@ function startClickTracking() {
 }
 
 function stopClickTracking() {
-    document.removeEventListener('click')
-    document.removeEventListener('contextmenu')
-    document.removeEventListener('auxclick')
+    document.removeEventListener('click', startClickTracking)
+    document.removeEventListener('contextmenu', startClickTracking)
+    document.removeEventListener('auxclick', startClickTracking)
 }

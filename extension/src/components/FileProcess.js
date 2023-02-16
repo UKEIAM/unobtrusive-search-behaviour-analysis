@@ -82,7 +82,6 @@ async function FileProcess() {
                 end: endTime,
                 text: row['text']
             }
-
             webVTTRaw.push(entry)
         }
 
@@ -99,7 +98,6 @@ async function FileProcess() {
         //   handleDownload()
         // }
     }
-}
 
 
     // async function embedSubtitles(webVTTRaw) {

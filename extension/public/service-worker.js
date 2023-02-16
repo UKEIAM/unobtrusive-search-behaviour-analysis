@@ -75,7 +75,7 @@ function startNavigationTracking() {
 
 function stopNavigationTracking() {
   console.log("Stopped navigation capturing")
-  chrome.webNavigation.onCommitted.removeListener(startNavigationTracking)
+  chrome.webNavigation.onCommitted.removeListener(formatNavigationData)
 }
 
 function startClickTracking() {

@@ -87,13 +87,14 @@ function startClickTracking() {
   // TODO: Listeners are not firing currently
   // Cover all tab interactions
   chrome.tabs.onUpdated.addListener( (changeInfo, tab) => {
-    if (changeInfo.status === "complete") {
-          chrome.tabs.sendMessage(tab.id, { message: "start_click_tracking" });
+    if(changeInfo == "complete") {
+      chrome.tabs.sendMessage(tab.id, { message: "start_click_tracking" });
     }
   })
+
   // Cover for newly created tabs, since extension gets "reloaded" on every change
-  chrome.tabs.onCreated.addListener( (tab) => {
-    if(tab.status == "complete") {
+  chrome.tabs.onCreated.addListener( (tabId, changeInfo, tab) => {
+    if(changeInfo == "complete") {
       chrome.tabs.sendMessage(tab.id, { message: "start_click_tracking" })
    }
   })

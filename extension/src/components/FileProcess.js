@@ -21,8 +21,9 @@ async function FileProcess() {
 
     const processJSON = (rawJSON) => {
         let webVTTRaw = []
-
         let raw = []
+        let webVTT = 'WEBVTT\n\n';
+
         rawJSON.navData.forEach((row) => {
             let nestedDict = {
                 timeStamp: row['timeStamp'],
@@ -93,28 +94,31 @@ async function FileProcess() {
             console.log("WebVTTRaw")
             console.log(webVTTRaw)
 
-        // if (screen) {
-        //   await embedSubtitles(webVTTRaw).then((resp) => {
-        //     handleDownload(resp.outputFilename)
-        //   })}
-        // else {
-        //   handleDownload()
-        // }
+        webVTTRaw.forEach(caption => {
+            webVTT += `${caption.start} --> ${caption.end}\n`;
+            webVTT += `${caption.text}\n\n`;
+        });
+
+        chrome.storage.local.set({
+            webVTT: webVTT
+        }).then((resp) => {
+            if (screen) {
+                //embedSubtitles(webVTTRaw).then((resp) => {
+                // handleFiles(resp.outputFilename)
+                console.log('TODO: Embed subtitlees')
+             // })
+            }
+            else {
+              handleFiles()
+            }
+        })
     }
 
 
+    // TODO: Current use of plain "ffmpeg.js" libary destroys build due to heap limit (known bug, but not fixed)
     // const embedSubtitles = async (webVTTRaw) => {
-    //      const recordedChunks = await chrome.storage.local.get(['recordedChunks'])
+//         const recordedChunks = await chrome.storage.local.get(['recordedChunks'])
     //     const timeStamp = new Date()
-    //     // EXAMPLE how it can be parsed
-    //     const obj = webVTTRaw;
-    //     const webvtt = 'WEBVTT\n\n';
-
-    //     // iterate over the captions and create a WebVTT cue for each one
-    //     obj.forEach(caption => {
-    //         webvtt += `${caption.start} --> ${caption.end}\n`;
-    //         webvtt += `${caption.text}\n\n`;
-    //     });
 
     //     // Run FFmpeg to embed the subtitles in the video
     //     const outputFilename = `${timeStamp}_usba.mp4`;
@@ -130,24 +134,34 @@ async function FileProcess() {
     //     return outputFilename
     // }
 
-    const handleDownload = async (finalRecording) => {
+    const handleFiles = async (finalRecording) => {
+        // Entrypoint for file handling.
+        // Either download them to local machine or connect API endpoint to tranfer to
         console.log("Downloading...")
-        if (finalRecording) {
-            const loading = true
-            await chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-            chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRecording", data: finalRecording})
-            }).then(() => {
-                chrome.storage.local.set({
-                    rawJSON: [],
-                    recordedChunks: []
-                })
-                loading = false
-            })
-        }
-        console.log("DEBUG: Recording passed to download")
+        // if (finalRecording) {
+        //     const loading = true
+        //     await chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            //     chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRecording", data: finalRecording})
+        //     })
+    //         loading = false
+        //     })
+        // }
+        console.log("DEBUG: Data passed to download")
 
         chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-            chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawData", data: rawJSON})
+            chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawJSON"})
+        })
+        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            chrome.tabs.sendMessage(tabs[0].id, { message: "downloadWebVTT"}).then((resp) => {
+                // After downloading everything, clear storage
+                chrome.storage.local.clear(() => {
+                    var error = chrome.runtime.lastError;
+                    if (error) {
+                        console.error(error);
+                    }
+                });
+                chrome.storage.sync.clear(); // callback is optional
+            })
         })
     }
 

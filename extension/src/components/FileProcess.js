@@ -53,41 +53,43 @@ async function FileProcess() {
         const lenRaw = raw.length
         console.log(raw)
         console.log("Initial timestamp: " + init )
-        raw.forEach((row, index) => {
-            // TODO: Found Issue -> Click tracker not activated/ deactivated correctly. Hence clicks are recorded before the capturing started. That results in negative differences
-          let mTimeStamp = moment(row.timeStamp)
-          let timeStamp = mTimeStamp.diff(init)
-          let startTime = moment.utc(timeStamp).format('HH:mm:ss.SSS');
 
+        for (var index = 0; index < lenRaw; index++) {
+            let row = raw[index]
+            let mTimeStamp = moment(row.timeStamp)
+            let timeStamp = mTimeStamp.diff(init)
+            let startTime = moment.utc(timeStamp).format('HH:mm:ss.SSS');
+            if (startTime < 0) continue;
 
-          const nextIndex = () => {
+            const nextIndex = () => {
             if (index+1 < lenRaw) {
                 return raw[index+1]["timeStamp"]
-            }
+                }
             else {
                 return row.timeStamp+2000
+                }
             }
-          }
-          console.log("Next Index: " + nextIndex())
-          let nxtTimeStamp =  moment(nextIndex())
-          let endTimeStamp =  nxtTimeStamp.diff(init)
-          let endTime = moment.utc(endTimeStamp).format('HH:mm:ss.SSS');
+            console.log("Next Index: " + nextIndex())
+            let nxtTimeStamp =  moment(nextIndex())
+            let endTimeStamp =  nxtTimeStamp.diff(init)
+            let endTime = moment.utc(endTimeStamp).format('HH:mm:ss.SSS');
 
-          console.log(startTime);
-          console.log(endTime);
+            console.log(startTime);
+            console.log(endTime);
 
-          let entry = {
-            start: startTime,
-            end: endTime,
-            text: row['text']
-          }
-          webVTTRaw.push(entry)
-        })
+            let entry = {
+                start: startTime,
+                end: endTime,
+                text: row['text']
+            }
 
-        console.log("JSON Raw")
-        console.log(raw)
-        console.log("WebVTTRaw")
-        console.log(webVTTRaw)
+            webVTTRaw.push(entry)
+        }
+
+            console.log("JSON Raw")
+            console.log(raw)
+            console.log("WebVTTRaw")
+            console.log(webVTTRaw)
 
         // if (screen) {
         //   await embedSubtitles(webVTTRaw).then((resp) => {
@@ -97,6 +99,8 @@ async function FileProcess() {
         //   handleDownload()
         // }
     }
+}
+
 
     // async function embedSubtitles(webVTTRaw) {
     //      const recordedChunks = await chrome.storage.local.get(['recordedChunks'])

@@ -82,8 +82,8 @@ function UI(props) {
       };
 
     const startRecording = () => {
-        const initialTimeStamp = new Date().getTime()
-        console.log(initialTimeStamp)
+        let initialTimeStamp = Date.now()
+        console.log("Initial timestamp set: " + initialTimeStamp)
         chrome.storage.local.set({
             recording: true,
             initialTimeStamp: initialTimeStamp,

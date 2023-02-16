@@ -38,7 +38,7 @@ async function FileProcess() {
         })
 
         raw.sort((a, b) => {
-            return a.timeStamp - b.timeStamp
+            return b.timeStamp - a.timeStamp
         })
 
         // deduplicate
@@ -51,16 +51,18 @@ async function FileProcess() {
 
         // 2. For each row in the new JSON, create the difference between the first timeStamp and all others
         // 2.1
+        let init = moment(initialTimeStamp)
         raw.forEach((row, index) => {
+            // TODO: Timestamp subtraction is negative and too far from each other. I don't get it...
           let mTimeStamp = moment(row.timeStamp)
           console.log(mTimeStamp)
-          let timeStamp = mTimeStamp.diff(ini)
+          let timeStamp = init.diff(mTimeStamp)
           console.log(timeStamp)
-          let startTime =  moment.utc(timeStamp).format('HH:mm:ss.SSS');
+          let startTime = moment.utc(timeStamp).format('HH:mm:ss.SSS');
           console.log(startTime)
 
-             let nxtTimeStamp =  raw[index]["timeStamp"]
-          let endTimeStamp = (initialTimeStamp - nxtTimeStamp) //2 seconds
+          let nxtTimeStamp =  moment(raw[index]["timeStamp"])
+          let endTimeStamp =  init.diff(nxtTimeStamp)
           let endTime = moment.utc(endTimeStamp).format('HH:mm:ss.SSS');
 
           console.log(startTime);

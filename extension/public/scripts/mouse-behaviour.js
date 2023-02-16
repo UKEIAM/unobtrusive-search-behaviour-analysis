@@ -35,16 +35,12 @@ function startClickTracking() {
                 y: event.y
             },
             timeStampVTT: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
-            timeStamp: date.getTime(),
-            hours: hours,
-            minutes: minutes,
-            seconds: seconds,
-            milliseconds: milliseconds
+            timeStamp: Date.now(),
         }
         chrome.runtime.sendMessage({ message: "click_tracked", data: click_data })
     })
     document.addEventListener("contextmenu", (event) => {
-        var date = new Date();
+        var date = Date.now();
         var hours = date.getHours()
         var minutes = date.getMinutes()
         var seconds = date.getSeconds()
@@ -61,16 +57,12 @@ function startClickTracking() {
             },
             timeStampVTT: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
             timeStamp: date.getTime(),
-            hours: hours,
-            minutes: minutes,
-            seconds: seconds,
-            milliseconds: milliseconds
         }
         chrome.runtime.sendMessage({ message: "click_tracked", data: click_data })
     })
 
     document.addEventListener("auxclick", (event) => {
-        var date = new Date();
+        var date = Date.now();
         var hours = date.getHours()
         var minutes = date.getMinutes()
         var seconds = date.getSeconds()
@@ -87,10 +79,6 @@ function startClickTracking() {
             },
             timeStampVTT: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
             timeStamp: date.getTime(),
-            hours: hours,
-            minutes: minutes,
-            seconds: seconds,
-            milliseconds: milliseconds
         }
 
         chrome.runtime.sendMessage({ message: "click_tracked", data: click_data })

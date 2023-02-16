@@ -1,5 +1,4 @@
 // MAIN FUNCTION ORCHESTRATION
-const startTimeStamp = new Date()
 chrome.runtime.onMessage.addListener(
   async function(request, sender, sendResponse) {
     //safetyFunction()
@@ -44,24 +43,16 @@ let navigationData = []
 let recordedChunks = []
 
 // FUNCTIONS
-function handleDownload(finalRecording) {
-}
-// TODO: Add alert on tab refresh, close or browser close -> Screen recorder shuts down if so
-
 
 // Save navigational data
 function formatNavigationData(data) {
-  var date = new Date();
+  var date = new Date ();
   var hours = date.getHours();
   var minutes = date.getMinutes();
   var seconds = date.getSeconds();
   var milliseconds = date.getMilliseconds();
   data.timeStampVTT = hours + ":" + minutes + ":" + seconds + "." + milliseconds
-  data.timeStamp = date.getTime()
-  data.hours = hours
-  data.minutes = minutes
-  data.seconds = seconds
-  data.milliseconds = milliseconds
+  data.timeStamp = Date.now()
   if (data.transitionType !== 'auto_subframe'){
     navigationData.push(data)
   }

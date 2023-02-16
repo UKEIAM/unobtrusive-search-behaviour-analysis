@@ -145,7 +145,7 @@ function UI(props) {
             recording: false,
           })
     }
-    async function continueProcessing () {
+    const continueProcessing = async () => {
         console.log('Processing data...')
         await chrome.runtime.sendMessage({ message: "feedback_recieved" }).then(() => {
             // Call file preprocessor

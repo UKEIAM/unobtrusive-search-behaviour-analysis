@@ -1,4 +1,7 @@
 /*global chrome*/
+import * as React from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
 import moment from "moment";
 // TODO: ffmpeg is causing build to crash -> heap size
 //import ffmpeg from "ffmpeg.js/ffmpeg-worker-webm";
@@ -16,7 +19,7 @@ async function FileProcess() {
     })
 
 
-    async function processJSON(rawJSON) {
+    const processJSON = (rawJSON) => {
         let webVTTRaw = []
 
         let raw = []
@@ -100,7 +103,7 @@ async function FileProcess() {
     }
 
 
-    // async function embedSubtitles(webVTTRaw) {
+    // const embedSubtitles = async (webVTTRaw) => {
     //      const recordedChunks = await chrome.storage.local.get(['recordedChunks'])
     //     const timeStamp = new Date()
     //     // EXAMPLE how it can be parsed
@@ -127,16 +130,19 @@ async function FileProcess() {
     //     return outputFilename
     // }
 
-    async function handleDownload(finalRecording) {
+    const handleDownload = async (finalRecording) => {
         console.log("Downloading...")
         if (finalRecording) {
-        // await chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-        //   chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRecording", data: finalRecording})
-        // }).then(() => {
-        chrome.storage.local.set({
-            rawJSON: [],
-            recordedChunks: []
-        })
+            const loading = true
+            await chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRecording", data: finalRecording})
+            }).then(() => {
+                chrome.storage.local.set({
+                    rawJSON: [],
+                    recordedChunks: []
+                })
+                loading = false
+            })
         }
         console.log("DEBUG: Recording passed to download")
 
@@ -144,6 +150,20 @@ async function FileProcess() {
             chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawData", data: rawJSON})
         })
     }
+
+    return(
+        <div>
+            { loading &&
+            <Grid>
+                <Grid item>
+                <Box sx={{ display: 'flex' }}>
+                    <CircularProgress />
+                </Box>
+                </Grid>
+            </Grid>
+            }
+      </div>
+    )
 }
 
 export default FileProcess

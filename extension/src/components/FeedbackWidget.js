@@ -3,6 +3,7 @@ import React from 'react'
 import "./FeedbackWidget.css"
 import { Snackbar, Alert, Grid, Button } from '@mui/material'
 import RecSnackbar from './RecSnackbar'
+import FileProcess from './FileProcess'
 
 function FeedbackWidged(props) {
 
@@ -57,9 +58,11 @@ function FeedbackWidged(props) {
             </Grid>
             )
         }
+        <FileProcess/>
          </Grid>
       </div>
     )
+    // TODO add some indicator for procssing
 }
 
 export default FeedbackWidged

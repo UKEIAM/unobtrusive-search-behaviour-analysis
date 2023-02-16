@@ -17,6 +17,8 @@ chrome.runtime.onMessage.addListener(
       console.log("resetting")
       stopNavigationTracking()
       stopClickTracking()
+      resetData()
+
     }
      // Message from user
      if (request.message === "stop_recording") {
@@ -41,7 +43,6 @@ chrome.runtime.onMessage.addListener(
 let mouseTracking = []
 let navigationData = []
 let recordedChunks = []
-
 // FUNCTIONS
 
 // Save navigational data
@@ -52,9 +53,10 @@ function formatNavigationData(data) {
   var seconds = date.getSeconds();
   var milliseconds = date.getMilliseconds();
   data.timeStampVTT = hours + ":" + minutes + ":" + seconds + "." + milliseconds
-  data.timeStamp = Date.now()
+  //data.timeStamp = Date.now()
   if (data.transitionType !== 'auto_subframe'){
     navigationData.push(data)
+    console.log(navigationData)
   }
 }
 
@@ -67,7 +69,7 @@ function uploadRecordingToServer(recordedChunks) {
   let navigation_tracking = JSON.stringify(navigationData);
   let mouse_tracking = JSON.stringify(mouseTracking)
   console.log(navigation_tracking)
-  console.log(mouseTracking)
+  console.log(mouse_tracking)
 }
 
 // Start and stop the meta collection when recording has been started
@@ -84,37 +86,35 @@ function stopNavigationTracking() {
 }
 
 function startClickTracking() {
-  console.log("Mouse tracking started")
-
-  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-    chrome.tabs.sendMessage(tabs[0].id, { message: "start_click_tracking" }).then((resp) => {
+  chrome.tabs.query({}, (tabs) => {
+    tabs.forEach((tab) => {
+      chrome.tabs.sendMessage(tab.id, {message: "start_click_tracking"});
+    // Cover all tab interactions
     })
   })
-  // Cover all tab interactions
-  chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
-    if(changeInfo.status == "complete") {
-          chrome.tabs.sendMessage(tabId, { message: "start_click_tracking" }).then((resp) => {
-      });
+
+  chrome.tabs.onUpdated.addListener( (changeInfo, tab) => {
+    if (changeInfo.status === "complete") {
+          chrome.tabs.sendMessage(tab.id, { message: "start_click_tracking" });
     }
   })
-  // Cover for newly created tabs, since extension gods "reloaded" on every change
-  chrome.tabs.onCreated.addListener( (tabId, changeInfo, tab) => {
-    if(changeInfo.status == "complete") {
-      chrome.tabs.sendMessage(tabsId, { message: "start_click_tracking" }).then((resp) => {
-      })
-    }
+  // Cover for newly created tabs, since extension gets "reloaded" on every change
+  chrome.tabs.onCreated.addListener( (tab) => {
+    if(tab.status == "complete") {
+      chrome.tabs.sendMessage(tab.id, { message: "start_click_tracking" })
+   }
   })
 }
 
 function stopClickTracking() {
-  chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
-    if(changeInfo.status == "complete") {
-      chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, { message: "stop_click_tracking" }).then((resp) => {
-        })
-      })
-    }
+  chrome.tabs.query({}, (tabs) => {
+    tabs.forEach((tab) => {
+      chrome.tabs.sendMessage(tab.id, {message: "stop_click_tracking"});
+    })
   })
+  chrome.tabs.onUpdated.removeListener()
+  chrome.tabs.onCreated.removeListener()
+
 }
 
 
@@ -155,3 +155,8 @@ async function preprocessJSON() {
 //     alert('Closing or reloading the tab deletes all collected data. Are you sure?')
 //   })
 //}
+
+function resetData() {
+  mouseTracking = []
+  navigationData = []
+}

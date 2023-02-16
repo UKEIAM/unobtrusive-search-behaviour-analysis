@@ -39,32 +39,27 @@ function startCapture() {
     const options = { mimeType: "video/webm; codecs=vp9" };
     recorder = new MediaRecorder(stream, options);
     // Start recording
-    recording = true
     recorder.ondataavailable = (e) => {
       recordedChunks.push(e.data)
     };
-    try {
-      recorder.start();
-      chrome.storage.sync.set({
-        recording: true
-    })
-    } catch (error) {
-      console.log("Declined screen sharing")
-    }
-
+    recorder.start();
     recorder.onstop = (e) => {
       changeRecordingState()
       if (cancelled){
         console.log(recorder.state)
       }
       else {
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
           triggerFeedback: true,
           recordedChunks: recordedChunks
         })
       }
     }
-  }).catch((err) => { console.error(`Error:${err}`); return })
+  }).catch((err) => {
+    console.error(`Error:${err}`)
+    chrome.storage.local.set({
+      recording: false
+  }); return })
 }
 
 function sendRecordedChunks () {
@@ -81,7 +76,7 @@ function resetRecorder () {
 }
 
 function changeRecordingState() {
-  chrome.storage.sync.set({
+  chrome.storage.local.set({
     recording: false
   }, () => {
     console.log("Recording state changed from recorder.js")

@@ -1,6 +1,7 @@
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
+      console.log("Message recieved: " + request.message)
       if(request.message === 'start_click_tracking') {
         console.log('Clicks script started')
         startClickTracking()
@@ -35,12 +36,12 @@ function startClickTracking() {
                 y: event.y
             },
             timeStampVTT: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
-            timeStamp: Date.now(),
+            timeStamp: event.target.timeStamp
         }
         chrome.runtime.sendMessage({ message: "click_tracked", data: click_data })
     })
     document.addEventListener("contextmenu", (event) => {
-        var date = Date.now();
+        var date = new Date();
         var hours = date.getHours()
         var minutes = date.getMinutes()
         var seconds = date.getSeconds()
@@ -56,13 +57,13 @@ function startClickTracking() {
                 y: event.y
             },
             timeStampVTT: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
-            timeStamp: date.getTime(),
+            timeStamp: Date.now()
         }
         chrome.runtime.sendMessage({ message: "click_tracked", data: click_data })
     })
 
     document.addEventListener("auxclick", (event) => {
-        var date = Date.now();
+        var date = new Date()
         var hours = date.getHours()
         var minutes = date.getMinutes()
         var seconds = date.getSeconds()
@@ -78,7 +79,7 @@ function startClickTracking() {
                 y: event.y
             },
             timeStampVTT: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
-            timeStamp: date.getTime(),
+            timeStamp: Date.now()
         }
 
         chrome.runtime.sendMessage({ message: "click_tracked", data: click_data })

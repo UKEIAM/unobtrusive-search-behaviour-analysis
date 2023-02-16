@@ -52,17 +52,19 @@ async function FileProcess() {
         // 2. For each row in the new JSON, create the difference between the first timeStamp and all others
         // 2.1
         let init = moment(initialTimeStamp)
+        console.log("Initial timestamp: " + init )
         raw.forEach((row, index) => {
-            // TODO: Timestamp subtraction is negative and too far from each other. I don't get it...
+            // TODO: Found Issue -> Click tracker not activated/ deactivated correctly. Hence clicks are recorded before the capturing started. That results in negative differences
           let mTimeStamp = moment(row.timeStamp)
-          console.log(mTimeStamp)
-          let timeStamp = init.diff(mTimeStamp)
-          console.log(timeStamp)
+          console.log("Row timestamp: " + mTimeStamp)
+          let timeStamp = mTimeStamp.diff(init)
+          console.log("Diff between init and mTimestamp: " + timeStamp)
+          console.log("Manually caluclated diff: " + (row.timeStamp - initialTimeStamp))
           let startTime = moment.utc(timeStamp).format('HH:mm:ss.SSS');
           console.log(startTime)
 
           let nxtTimeStamp =  moment(raw[index]["timeStamp"])
-          let endTimeStamp =  init.diff(nxtTimeStamp)
+          let endTimeStamp =  nxtTimeStamp.diff(init)
           let endTime = moment.utc(endTimeStamp).format('HH:mm:ss.SSS');
 
           console.log(startTime);

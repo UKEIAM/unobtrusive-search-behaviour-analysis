@@ -53,7 +53,7 @@ function formatNavigationData(data) {
   var seconds = date.getSeconds();
   var milliseconds = date.getMilliseconds();
   data.timeStampVTT = hours + ":" + minutes + ":" + seconds + "." + milliseconds
-  //data.timeStamp = Date.now()
+  data.timeStamp = Date.now()
   if (data.transitionType !== 'auto_subframe'){
     navigationData.push(data)
     console.log(navigationData)

@@ -36,7 +36,7 @@ function startClickTracking() {
                 y: event.y
             },
             timeStampVTT: hours + ":" + minutes + ":" + seconds + "." + milliseconds,
-            timeStamp: event.target.timeStamp
+            timeStamp: Date.now()
         }
         chrome.runtime.sendMessage({ message: "click_tracked", data: click_data })
     })

@@ -57,14 +57,14 @@ async function FileProcess() {
             // TODO: Found Issue -> Click tracker not activated/ deactivated correctly. Hence clicks are recorded before the capturing started. That results in negative differences
           let mTimeStamp = moment(row.timeStamp)
           console.log("Row timestamp: " + mTimeStamp)
-          let timeStamp = mTimeStamp.diff(init)
+          let timeStamp = init.diff(mTimeStamp)
           console.log("Diff between init and mTimestamp: " + timeStamp)
           console.log("Manually caluclated diff: " + (row.timeStamp - initialTimeStamp))
           let startTime = moment.utc(timeStamp).format('HH:mm:ss.SSS');
           console.log(startTime)
 
           let nxtTimeStamp =  moment(raw[index]["timeStamp"])
-          let endTimeStamp =  nxtTimeStamp.diff(init)
+          let endTimeStamp =  init.diff(nxtTimeStamp)
           let endTime = moment.utc(endTimeStamp).format('HH:mm:ss.SSS');
 
           console.log(startTime);

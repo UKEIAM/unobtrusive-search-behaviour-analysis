@@ -8,7 +8,6 @@ async function FileProcess() {
     let initialTimeStamp = undefined
     await chrome.storage.local.get(['initialTimeStamp']).then((resp) => {
         initialTimeStamp = resp.initialTimeStamp
-        console.log(initialTimeStamp)
     })
     await chrome.storage.local.get(['rawJSON']).then((resp) => {
         rawJSON = resp.rawJSON
@@ -38,7 +37,7 @@ async function FileProcess() {
         })
 
         raw.sort((a, b) => {
-            return b.timeStamp - a.timeStamp
+            return a.timeStamp - b.timeStamp
         })
 
         // deduplicate
@@ -47,24 +46,31 @@ async function FileProcess() {
                 t.text === value.text && t.timeStamp === value.timeStamp
             ))
         )
-        console.log(raw)
 
         // 2. For each row in the new JSON, create the difference between the first timeStamp and all others
         // 2.1
         let init = moment(initialTimeStamp)
+        const lenRaw = raw.length
+        console.log(raw)
         console.log("Initial timestamp: " + init )
         raw.forEach((row, index) => {
             // TODO: Found Issue -> Click tracker not activated/ deactivated correctly. Hence clicks are recorded before the capturing started. That results in negative differences
           let mTimeStamp = moment(row.timeStamp)
-          console.log("Row timestamp: " + mTimeStamp)
-          let timeStamp = init.diff(mTimeStamp)
-          console.log("Diff between init and mTimestamp: " + timeStamp)
-          console.log("Manually caluclated diff: " + (row.timeStamp - initialTimeStamp))
+          let timeStamp = mTimeStamp.diff(init)
           let startTime = moment.utc(timeStamp).format('HH:mm:ss.SSS');
-          console.log(startTime)
 
-          let nxtTimeStamp =  moment(raw[index]["timeStamp"])
-          let endTimeStamp =  init.diff(nxtTimeStamp)
+
+          const nextIndex = () => {
+            if (index+1 < lenRaw) {
+                return raw[index+1]["timeStamp"]
+            }
+            else {
+                return row.timeStamp+2000
+            }
+          }
+          console.log("Next Index: " + nextIndex())
+          let nxtTimeStamp =  moment(nextIndex())
+          let endTimeStamp =  nxtTimeStamp.diff(init)
           let endTime = moment.utc(endTimeStamp).format('HH:mm:ss.SSS');
 
           console.log(startTime);
@@ -93,7 +99,7 @@ async function FileProcess() {
     }
 
     // async function embedSubtitles(webVTTRaw) {
-           const recordedChunks = await chrome.storage.local.get(['recordedChunks'])
+    //      const recordedChunks = await chrome.storage.local.get(['recordedChunks'])
     //     const timeStamp = new Date()
     //     // EXAMPLE how it can be parsed
     //     const obj = webVTTRaw;

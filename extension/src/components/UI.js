@@ -117,7 +117,6 @@ function UI(props) {
     const stopRecording = () => {
         setRecording(false)
         setTriggerFeedback(true)
-        chrome.runtime.sendMessage({ message: "stop_recording"});
          chrome.storage.local.set({
             recording: false,
             triggerFeedback: true

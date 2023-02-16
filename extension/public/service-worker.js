@@ -20,11 +20,6 @@ chrome.runtime.onMessage.addListener(
       resetData()
 
     }
-     // Message from user
-     if (request.message === "stop_recording") {
-      stopClickTracking()
-      stopNavigationTracking()
-    }
     // Message from recorder
     if (request.message === "capture_stopped") {
       recordedChunks = request.data
@@ -33,9 +28,7 @@ chrome.runtime.onMessage.addListener(
       console.log("Feedback finished. Processing data...")
       stopClickTracking()
       stopNavigationTracking()
-      await preprocessJSON().then(() => {
-        sendResponse({resp: 'rawJSON Saved'})
-      })
+      preprocessJSON()
     }
   });
 
@@ -56,7 +49,7 @@ function formatNavigationData(data) {
   data.timeStamp = Date.now()
   if (data.transitionType !== 'auto_subframe'){
     navigationData.push(data)
-    console.log(navigationData)
+    console.log(data)
   }
 }
 
@@ -82,17 +75,17 @@ function startNavigationTracking() {
 
 function stopNavigationTracking() {
   console.log("Stopped navigation capturing")
-  chrome.webNavigation.onCommitted.removeListener(startNavigationTracking)
+  chrome.webNavigation.onCommitted.removeListener()
 }
 
 function startClickTracking() {
   chrome.tabs.query({}, (tabs) => {
     tabs.forEach((tab) => {
       chrome.tabs.sendMessage(tab.id, {message: "start_click_tracking"});
-    // Cover all tab interactions
     })
   })
-
+  // TODO: Listeners are not firing currently
+  // Cover all tab interactions
   chrome.tabs.onUpdated.addListener( (changeInfo, tab) => {
     if (changeInfo.status === "complete") {
           chrome.tabs.sendMessage(tab.id, { message: "start_click_tracking" });
@@ -118,15 +111,15 @@ function stopClickTracking() {
 }
 
 
-async function preprocessJSON() {
+function preprocessJSON() {
   // 1. Create concat file from NavData, ClickData & Feedback
   let label = undefined
   let screen = true
 
-  await chrome.storage.sync.get(['screen']).then((resp) => {
+  chrome.storage.local.get(['screen']).then((resp) => {
     screen = resp.screen
   })
-  await chrome.storage.sync.get(['label']).then((resp) => {
+  chrome.storage.local.get(['label']).then((resp) => {
     label = resp.label
     })
 
@@ -135,10 +128,8 @@ async function preprocessJSON() {
     clickData: mouseTracking,
     label: label
   }
-  // chrome.storage.sync.set({
-  //   rawJSON: rawJSON
-  // })
-  await chrome.storage.local.set({
+  console.log(rawJSON)
+  chrome.storage.local.set({
     rawJSON: rawJSON
   }).then(() =>
     navigationData = [],

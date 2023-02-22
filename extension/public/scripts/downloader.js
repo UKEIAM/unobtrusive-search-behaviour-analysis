@@ -1,5 +1,6 @@
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
+        console.log("Message recieved: " + request.message)
         if (request.message === 'downloadRawData') {
             downloadJSON()
         }
@@ -9,41 +10,36 @@ chrome.runtime.onMessage.addListener(
 })
 
 // TODO: Summarize all available data into one json before downloading?
-function downloadJSON(data) {
-    const jsonRaw = undefined
-    const webVTT = undefined
-    chrome.storage.sync.get(['jsonRaw']).then((resp) => {
-        jsonRaw = resp.jsonRaw
+async function downloadJSON() {
+    await chrome.storage.local.get(['rawJSON']).then((resp) => {
+        obj = JSON.stringify(resp.rawJSON)
+        console.log("Downloading...")
+        let blob = new Blob([obj], {type : 'application/json'});
+        let url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.style.display = "none";
+        link.href = url;
+        link.download = `jsonRAW_${Date.now()}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url);
     })
-    obj = JSON.parse(jsonRaw)
-    console.log("Downloading...")
-    let blob = new Blob([obj], {type : 'application/json'});
-    let url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.style.display = "none";
-    link.href = url;
-    link.download = `jsonRaw_${Date.now()}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url);
 }
 
-function downloadWebVTT() {
-    const webVTT = undefined
-    chrome.storage.sync.get(['webVTT']).then((resp) => {
-        webVTT = resp.webVTT
+async function downloadWebVTT() {
+    await chrome.storage.local.get(['webVTT']).then((resp) => {
+        console.log("Downloading...")
+        const blob = new Blob([resp.webVTT], { type: 'text/plain' });
+        let url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.style.display = "none";
+        link.href = url;
+        link.download = `webVTT_${Date.now()}.vtt`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url);
     })
-    console.log("Downloading...")
-    const blob = new Blob([content], { type: 'text/plain' });
-    let url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.style.display = "none";
-    link.href = url;
-    link.download = `webVTT_${Date.now()}.vtt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url);
 }
 

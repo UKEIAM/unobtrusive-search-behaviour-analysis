@@ -3,26 +3,21 @@ import * as React from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import moment from "moment";
+import { Grid } from "@mui/material"
 // TODO: ffmpeg is causing build to crash -> heap size
 //import ffmpeg from "ffmpeg.js/ffmpeg-worker-webm";
 
 async function FileProcess() {
     let rawJSON = undefined
     let initialTimeStamp = undefined
-    await chrome.storage.local.get(['initialTimeStamp']).then((resp) => {
-        initialTimeStamp = resp.initialTimeStamp
-    })
-    await chrome.storage.local.get(['rawJSON']).then((resp) => {
-        rawJSON = resp.rawJSON
-        console.log(rawJSON)
-        processJSON(resp.rawJSON)
-    })
-
+    let loading = false
+    let screen = false
 
     const processJSON = (rawJSON) => {
         let webVTTRaw = []
         let raw = []
         let webVTT = 'WEBVTT\n\n';
+        loading = true
 
         rawJSON.navData.forEach((row) => {
             let nestedDict = {
@@ -149,7 +144,7 @@ async function FileProcess() {
         console.log("DEBUG: Data passed to download")
 
         chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-            chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawJSON"})
+            chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawData"})
         })
         chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
             chrome.tabs.sendMessage(tabs[0].id, { message: "downloadWebVTT"}).then((resp) => {
@@ -163,7 +158,21 @@ async function FileProcess() {
                 chrome.storage.sync.clear(); // callback is optional
             })
         })
+        loading = false
     }
+
+    // Load all required data asynchronously
+    await chrome.storage.local.get(['initialTimeStamp']).then((resp) => {
+        initialTimeStamp = resp.initialTimeStamp
+    })
+    await chrome.storage.local.get(['screen']).then((resp) => {
+        screen = resp.screenb
+    })
+    await chrome.storage.local.get(['rawJSON']).then((resp) => {
+        rawJSON = resp.rawJSON
+        console.log(rawJSON)
+        processJSON(resp.rawJSON)
+    })
 
     return(
         <div>

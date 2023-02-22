@@ -146,15 +146,6 @@ function preprocessJSON() {
 
 }
 
-// function safetyFunction() {
-//   chrome.tabs.onCreated.addListener('beforeunload', (e) => {
-//     alert('Closing or reloading the tab deletes all collected data. Are you sure?')
-//   })
-//   chrome.tabs.onUpadted.addListener('beforeunload', (e) => {
-//     alert('Closing or reloading the tab deletes all collected data. Are you sure?')
-//   })
-//}
-
 function resetData() {
   mouseTracking = []
   navigationData = []

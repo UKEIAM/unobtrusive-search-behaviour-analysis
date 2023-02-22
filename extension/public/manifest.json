@@ -26,7 +26,7 @@
       "default_title": "USBA"
     },
     "content_security_policy": {
-      "extension_pages": "script-src 'self' 'wasm-unsafe-eval' blob:; object-src 'self'; script-src-elem 'self' blob:; script-src-attr 'self' 'wasm-unsafe-eval';"
+      "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; script-src-elem 'self' blob:; script-src-attr 'self' 'wasm-unsafe-eval';"
     },
     "background": {
       "service_worker": "service-worker.js",

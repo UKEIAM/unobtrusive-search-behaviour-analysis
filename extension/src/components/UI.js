@@ -89,11 +89,11 @@ function UI(props) {
             recording: true,
             initialTimeStamp: initialTimeStamp,
         })
+
         setRecording(true)
         if (userOptions.screen) {
             chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-                chrome.tabs.sendMessage(tabs[0].id, { message: "start" }).then((resp) => {
-                })
+                chrome.tabs.sendMessage(tabs[0].id, { message: "start" })
             })
         }
 
@@ -123,8 +123,7 @@ function UI(props) {
         })
         if (screen) {
             chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-                chrome.tabs.sendMessage(tabs[0].id, { message: "stop" }).then((resp) => {
-                })
+                chrome.tabs.sendMessage(tabs[0].id, { message: "stop" })
             })
         }
     }
@@ -149,7 +148,14 @@ function UI(props) {
         console.log('Processing data...')
         await chrome.runtime.sendMessage({ message: "feedback_recieved" }).then(() => {
             // Call file preprocessor
-            FileProcess()
+            if(navigation || mouse){
+                FileProcess()
+            }
+            else{
+                chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+                    chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawRec" })
+                })
+            }
         })
     }
 

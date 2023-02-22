@@ -1,20 +1,25 @@
+import { defineLocale } from "moment"
+
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-    if(request.message === 'reset') {
+    console.log("Recording message received")
+    if(request.message === "reset") {
       console.log("Stopped screen capturing")
       cancelled = true
       resetRecorder()
     }
-    if(request.message === 'start') {
+    if(request.message === "start") {
       startCapture()
     }
-    if(request.message === 'stop') {
+    if(request.message === "stop") {
       console.log("Stopped screen capturing")
       stopCapture()
     }
-    if(request.message === 'downloadRecording') {
-      download(request.data)
+    if(request.message === "downloadProcessedRec") {
+      downloadProcessed(request.data)
     }
+    if(request.message === "downloadRawRec")
+      downloadRaw()
   }
 )
 
@@ -64,12 +69,7 @@ function startCapture() {
     }
   }).catch((err) => {
     chrome.webNavigation.onCommitted.removeListener(formatNavigationData)
-    console.log("Stopped navigation capturing")
-    chrome.tabs.query({}, (tabs) => {
-      tabs.forEach((tab) => {
-        chrome.tabs.sendMessage(tab.id, {message: "stop_click_tracking"});
-      })
-    })
+    chrome.runtime.sendMessage({ message: "rec_permission_denied" })
     console.error(`Error:${err}`)
     chrome.storage.local.set({
       recording: false
@@ -77,7 +77,7 @@ function startCapture() {
 }
 
 function sendRecordedChunks () {
-  chrome.runtime.sendMessage({ message: 'capture_stopped', data: recordedChunks})
+  chrome.runtime.sendMessage({ message: "capture_stopped", data: recordedChunks})
 }
 
 function stopCapture () {
@@ -85,7 +85,7 @@ function stopCapture () {
 }
 
 function resetRecorder () {
-  console.log('stopping')
+  console.log("stopping")
   recorder.stop()
 }
 
@@ -97,7 +97,7 @@ function changeRecordingState() {
   })
 }
 
-function download (data) {
+function downloadProcessed(data) {
   console.log("Downloading...")
   const url = URL.createObjectURL(new Blob([data.buffer], { type: "video/mp4" }));
   const link = document.createElement("a");
@@ -106,6 +106,21 @@ function download (data) {
   link.click();
   URL.revokeObjectURL(url);
 //sendRecordedChunks()
+}
+
+function downloadRaw() {
+  console.log("Downloading...")
+  const blob = new Blob(recordedChunks)
+  const link = document.createElement("a");
+  link.style.display = "none";
+  const url = URL.createObjectURL(blob);
+  link.href = url;
+  link.download = `recording_${timeStamp}.webm`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url);
+  sendRecordedChunks()
 }
 
 

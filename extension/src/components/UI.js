@@ -168,17 +168,25 @@ function UI(props) {
                     onClose={closeDialog}
                     ></ResetDialog>
                 <Grid item>
-                    <IconButton variant="text" style={{ marginRight: "1vh", marginBottom: "7px"}} onClick={!record ? startRecording : stopRecording}>
+                    {(!screen && !navigation && !mouse) ? (
+                         <IconButton disabled variant="text" style={{ marginRight: "1vh", marginBottom: "7px"}} onClick={!record ? startRecording : stopRecording}>
+                             <MdOutlineNotStarted
+                                 style={{ fontSize:"50px"}}
+                             ></MdOutlineNotStarted>
+                        </IconButton>
+                    ) : (
+                        <IconButton variant="text" style={{ marginRight: "1vh", marginBottom: "7px"}} onClick={!record ? startRecording : stopRecording}>
                         {!record ? (
                             <MdOutlineNotStarted
                                 style={{ fontSize:"50px", color: "red" }}
                             ></MdOutlineNotStarted>
                         ) : (
                             <RiStopCircleLine
-                            style={{ fontSize:"50px", color: "red"}}
-                        ></RiStopCircleLine>
-                        )}
-                    </IconButton>
+                                style={{ fontSize:"50px", color: "red"}}
+                            ></RiStopCircleLine>
+                            )}
+                        </IconButton>
+                    )}
                 </Grid>
                 <Grid>
                     <FormGroup>

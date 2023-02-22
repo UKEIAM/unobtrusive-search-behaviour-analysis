@@ -1,4 +1,3 @@
-import { defineLocale } from "moment"
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
@@ -68,12 +67,13 @@ function startCapture() {
       }
     }
   }).catch((err) => {
-    chrome.webNavigation.onCommitted.removeListener(formatNavigationData)
-    chrome.runtime.sendMessage({ message: "rec_permission_denied" })
+    window.removeEventListener("beforeunload", handleBeforeUnload)
     console.error(`Error:${err}`)
     chrome.storage.local.set({
       recording: false
-  }); return })
+    })
+    chrome.runtime.sendMessage({ message: "rec_permission_denied" });
+    return })
 }
 
 function sendRecordedChunks () {

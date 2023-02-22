@@ -31,7 +31,9 @@ chrome.runtime.onMessage.addListener(
       recordedChunks = request.data
     }
     if (request.message === "rec_permission_denied") {
+      console.log("DEBUG: Screen rec denied")
       isClickTrackingEnabled = false
+      isNavTrackingEnabled = false
     }
     if (request.message === "feedback_recieved") {
       console.log("Feedback finished. Processing data...")

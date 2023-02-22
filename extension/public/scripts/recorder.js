@@ -32,7 +32,13 @@ let recorder;
 let recordedChunks=[];
 let stream;
 
+function handleBeforeUnload(event) {
+  event.preventDefault();
+  event.returnValue = "Data will be lost if you leave the page, are you sure?";
+}
+
 function startCapture() {
+  window.addEventListener("beforeunload", handleBeforeUnload)
   navigator.mediaDevices.getDisplayMedia(displayMediaOptions).then((s) => {
     stream = s
     // Create a new MediaRecorder object
@@ -45,6 +51,7 @@ function startCapture() {
     recorder.start();
     recorder.onstop = (e) => {
       changeRecordingState()
+      window.removeEventListener("beforeunload", handleBeforeUnload)
       if (cancelled){
         console.log(recorder.state)
       }
@@ -56,6 +63,13 @@ function startCapture() {
       }
     }
   }).catch((err) => {
+    chrome.webNavigation.onCommitted.removeListener(formatNavigationData)
+    console.log("Stopped navigation capturing")
+    chrome.tabs.query({}, (tabs) => {
+      tabs.forEach((tab) => {
+        chrome.tabs.sendMessage(tab.id, {message: "stop_click_tracking"});
+      })
+    })
     console.error(`Error:${err}`)
     chrome.storage.local.set({
       recording: false

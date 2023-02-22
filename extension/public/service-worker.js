@@ -3,29 +3,37 @@ chrome.runtime.onMessage.addListener(
   async function(request, sender, sendResponse) {
     //safetyFunction()
     if (request.message === "start_navigation_tracking") {
+      isNavTrackingEnabled = true
       startNavigationTracking()
     }
     if (request.message === "start_click_tracking") {
+      isClickTrackingEnabled = true
       startClickTracking()
     }
-    // Track any click evenet
+    // Track any click event
     if (request.message === "click_tracked") {
-      console.log(request.data)
-      mouseTracking.push(request.data)
+      // TODO: Unsexy workaround, since listeners won't stop. Workaround just stops saving data
+      if (isClickTrackingEnabled) {
+        mouseTracking.push(request.data)
+        console.log(request.data)
+      }
     }
     if (request.message === "reset") {
       console.log("resetting")
+      isClickTrackingEnabled = false
+      isNavTrackingEnabled = false
       stopNavigationTracking()
       stopClickTracking()
       resetData()
-
     }
     // Message from recorder
-    if (request.message === "capture_stopped") {
+    if (request.message === "capture_stopped") {
       recordedChunks = request.data
     }
     if (request.message === "feedback_recieved") {
       console.log("Feedback finished. Processing data...")
+      isClickTrackingEnabled = false
+      isNavTrackingEnabled = false
       stopClickTracking()
       stopNavigationTracking()
       preprocessJSON()
@@ -36,6 +44,8 @@ chrome.runtime.onMessage.addListener(
 let mouseTracking = []
 let navigationData = []
 let recordedChunks = []
+let isNavTrackingEnabled = false
+let isClickTrackingEnabled = false
 // FUNCTIONS
 
 // Save navigational data
@@ -46,7 +56,8 @@ function formatNavigationData(data) {
   var seconds = date.getSeconds();
   var milliseconds = date.getMilliseconds();
   data.timeStampVTT = hours + ":" + minutes + ":" + seconds + "." + milliseconds
-  if (data.transitionType !== 'auto_subframe'){
+  // TODO: Unsexy workaround part 2
+  if (data.transitionType !== 'auto_subframe' && isNavTrackingEnabled){
     navigationData.push(data)
     console.log(data)
   }
@@ -86,17 +97,15 @@ function startClickTracking() {
   })
   // TODO: Listeners are not firing currently
   // Cover all tab interactions
-  chrome.tabs.onUpdated.addListener( (changeInfo, tab) => {
-    if(changeInfo == "complete") {
-      chrome.tabs.sendMessage(tab.id, { message: "start_click_tracking" });
+  chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if(changeInfo.status == "complete") {
+      chrome.tabs.sendMessage(tabId, { message: "start_click_tracking" });
     }
   })
 
   // Cover for newly created tabs, since extension gets "reloaded" on every change
-  chrome.tabs.onCreated.addListener( (tabId, changeInfo, tab) => {
-    if(changeInfo == "complete") {
+  chrome.tabs.onCreated.addListener((tab) => {
       chrome.tabs.sendMessage(tab.id, { message: "start_click_tracking" })
-   }
   })
 }
 
@@ -106,11 +115,9 @@ function stopClickTracking() {
       chrome.tabs.sendMessage(tab.id, {message: "stop_click_tracking"});
     })
   })
-  chrome.tabs.onUpdated.removeListener()
-  chrome.tabs.onCreated.removeListener()
-
+  chrome.tabs.onCreated.removeListener(startClickTracking)
+  chrome.tabs.onUpdated.removeListener(startClickTracking)
 }
-
 
 function preprocessJSON() {
   // 1. Create concat file from NavData, ClickData & Feedback
@@ -138,15 +145,6 @@ function preprocessJSON() {
   )
 
 }
-
-// function safetyFunction() {
-//   chrome.tabs.onCreated.addListener('beforeunload', (e) => {
-//     alert('Closing or reloading the tab deletes all collected data. Are you sure?')
-//   })
-//   chrome.tabs.onUpadted.addListener('beforeunload', (e) => {
-//     alert('Closing or reloading the tab deletes all collected data. Are you sure?')
-//   })
-//}
 
 function resetData() {
   mouseTracking = []

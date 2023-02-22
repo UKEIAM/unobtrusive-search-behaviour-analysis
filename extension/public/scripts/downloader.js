@@ -13,7 +13,6 @@ chrome.runtime.onMessage.addListener(
 async function downloadJSON() {
     await chrome.storage.local.get(['rawJSON']).then((resp) => {
         obj = JSON.stringify(resp.rawJSON)
-        console.log("Downloading...")
         let blob = new Blob([obj], {type : 'application/json'});
         let url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -29,7 +28,6 @@ async function downloadJSON() {
 
 async function downloadWebVTT() {
     await chrome.storage.local.get(['webVTT']).then((resp) => {
-        console.log("Downloading...")
         const blob = new Blob([resp.webVTT], { type: 'text/plain' });
         let url = URL.createObjectURL(blob);
         const link = document.createElement('a');

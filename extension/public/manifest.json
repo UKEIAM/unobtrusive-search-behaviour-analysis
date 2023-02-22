@@ -35,5 +35,11 @@
             "js": ["scripts/mouse-behaviour.js", "scripts/recorder.js", "scripts/downloader.js"]
         }
     ],
+    "web_accessible_resources": [
+      {
+        "resources": [ "getCreateFFmpegCore.js" ],
+        "matches": [ "https://*/*" ]
+      }
+    ],
     "author": "@kevin.kraus@studium.uni-hamburg.de"
   }

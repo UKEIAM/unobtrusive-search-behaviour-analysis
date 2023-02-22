@@ -83,20 +83,15 @@ function changeRecordingState() {
   })
 }
 
-function download (file) {
+function download (data) {
   console.log("Downloading...")
-  console.log(recorder.state)
-  const blob = new Blob(file)
-  const link = document.createElement('a');
-  link.style.display = "none";
-  const url = URL.createObjectURL(blob);
+  const url = URL.createObjectURL(new Blob([data.buffer], { type: "video/mp4" }));
+  const link = document.createElement("a");
   link.href = url;
-  link.download = `recording_${timeStamp}.webm`;
-  document.body.appendChild(link);
+  link.download = outputFilename;
   link.click();
-  document.body.removeChild(link)
   URL.revokeObjectURL(url);
-  sendRecordedChunks()
+//sendRecordedChunks()
 }
 
 

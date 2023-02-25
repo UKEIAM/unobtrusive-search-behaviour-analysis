@@ -17,7 +17,7 @@ async function downloadJSON() {
         const link = document.createElement('a');
         link.style.display = "none";
         link.href = url;
-        link.download = `jsonRAW_${Date.now()}.json`;
+        link.download = `raw_json${Date.now()}.json`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link)

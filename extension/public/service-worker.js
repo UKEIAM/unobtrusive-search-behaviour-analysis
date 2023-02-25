@@ -36,7 +36,7 @@ chrome.runtime.onMessage.addListener(
       isNavTrackingEnabled = false
     }
     if (request.message === "feedback_recieved") {
-      console.log("Feedback finished. Processing data...")
+      console.log("Preparing rawJSON")
       isClickTrackingEnabled = false
       isNavTrackingEnabled = false
       stopClickTracking()
@@ -95,7 +95,7 @@ function stopNavigationTracking() {
 }
 
 function startClickTracking() {
-  chrome.tabs.query({}, (tabs) => {
+  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
     tabs.forEach((tab) => {
       chrome.tabs.sendMessage(tab.id, {message: "start_click_tracking"});
     })
@@ -124,25 +124,20 @@ function stopClickTracking() {
   chrome.tabs.onUpdated.removeListener(startClickTracking)
 }
 
-function preprocessJSON() {
+async function preprocessJSON() {
   // 1. Create concat file from NavData, ClickData & Feedback
-  let label = undefined
-  let screen = true
+  let rawJSON = undefined
 
-  chrome.storage.local.get(['screen']).then((resp) => {
-    screen = resp.screen
-  })
-  chrome.storage.local.get(['label']).then((resp) => {
-    label = resp.label
+  await chrome.storage.local.get(['label']).then((resp) => {
+    rawJSON = {
+        navData: navigationData,
+        clickData: mouseTracking,
+        label: resp.label
+      }
     })
 
-  const rawJSON = {
-    navData: navigationData,
-    clickData: mouseTracking,
-    label: label
-  }
   console.log(rawJSON)
-  chrome.storage.local.set({
+  await chrome.storage.local.set({
     rawJSON: rawJSON
   }).then(() =>
     navigationData = [],

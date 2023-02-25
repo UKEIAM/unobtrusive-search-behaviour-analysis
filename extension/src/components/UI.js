@@ -92,7 +92,8 @@ function UI(props) {
 
         setRecording(true)
         if (userOptions.screen) {
-            chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            console.log('Screen')
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
                 chrome.tabs.sendMessage(tabs[0].id, { message: "start" })
             })
         }
@@ -151,7 +152,7 @@ function UI(props) {
             if(navigation || mouse){
                 FileProcess()
             }
-            else{
+            else {
                 chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
                     chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawRec" })
                 })
@@ -169,14 +170,15 @@ function UI(props) {
                     ></ResetDialog>
                 <Grid item>
                     {(!screen && !navigation && !mouse) ? (
-                         <IconButton disabled variant="text" style={{ marginRight: "1vh", marginBottom: "7px"}} onClick={!record ? startRecording : stopRecording}>
+                         <IconButton disabled variant="text" style={{ marginRight: "1vh", marginBottom: "7px"}} onClick={       !record ? startRecording : stopRecording }>
                              <MdOutlineNotStarted
                                  style={{ fontSize:"50px"}}
                              ></MdOutlineNotStarted>
                         </IconButton>
                     ) : (
-                        <IconButton variant="text" style={{ marginRight: "1vh", marginBottom: "7px"}} onClick={!record ? startRecording : stopRecording}>
-                        {!record ? (
+                        <IconButton variant="text" style={{ marginRight: "1vh", marginBottom: "7px"}} onClick={
+                            !record ? startRecording : stopRecording }>
+                        { !record ? (
                             <MdOutlineNotStarted
                                 style={{ fontSize:"50px", color: "red" }}
                             ></MdOutlineNotStarted>

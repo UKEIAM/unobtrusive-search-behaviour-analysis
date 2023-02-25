@@ -13,13 +13,10 @@ function FeedbackWidged(props) {
 
     const finishFeedback = (value) => {
         setShowThanks(true)
-        callBack(value)
-        console.log(showThanks)
         chrome.storage.local.set({
             label: value,
             triggerFeedback: false,
-        })
-
+        }).then(callBack(value))
     }
     return(
         <div>

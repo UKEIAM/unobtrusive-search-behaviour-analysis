@@ -12,6 +12,8 @@ async function FileProcess() {
     let initialTimeStamp = undefined
     let loading = false
     let screen = false
+    let mouse = false
+    let navigation = false
 
     const processJSON = (rawJSON) => {
         let webVTTRaw = []
@@ -133,24 +135,30 @@ async function FileProcess() {
 
         console.log("Downloading...")
         console.log("DEBUG: Data passed to download")
-        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-            chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRecording"})
-        })
-        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-            chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawData"})
-        })
-        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-            chrome.tabs.sendMessage(tabs[0].id, { message: "downloadWebVTT"}).then((resp) => {
-                // After downloading everything, clear storage
-                chrome.storage.local.clear(() => {
-                    var error = chrome.runtime.lastError;
-                    if (error) {
-                        console.error(error);
-                    }
-                });
-                chrome.storage.sync.clear(); // callback is optional
+        if (screen) {
+            chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+                chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRecording"})
             })
-        })
+        }
+        if (mouse || navigation){
+            chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+                chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawData"})
+            })
+
+            chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+                chrome.tabs.sendMessage(tabs[0].id, { message: "downloadWebVTT"}).then((resp) => {
+                    // After downloading everything, clear storage
+                    chrome.storage.local.clear(() => {
+                        var error = chrome.runtime.lastError;
+                        if (error) {
+                            console.error(error);
+                        }
+                    });
+                    chrome.storage.sync.clear(); // callback is optional
+                })
+            })
+        }
+
         loading = false
     }
 
@@ -159,7 +167,13 @@ async function FileProcess() {
         initialTimeStamp = resp.initialTimeStamp
     })
     await chrome.storage.local.get(['screen']).then((resp) => {
-        screen = resp.screenb
+        screen = resp.screen
+    })
+    await chrome.storage.local.get(['mouse']).then((resp) => {
+        mouse = resp.mouse
+    })
+    await chrome.storage.local.get(['navigation']).then((resp) => {
+        navigation = resp.navigation
     })
     await chrome.storage.local.get(['rawJSON']).then((resp) => {
         rawJSON = resp.rawJSON

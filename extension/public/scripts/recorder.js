@@ -1,5 +1,6 @@
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
+    console.log("Message recieved: " + request.message)
     if(request.message === 'reset') {
       console.log("Stopped screen capturing")
       cancelled = true
@@ -100,17 +101,16 @@ function changeRecordingState() {
 function download () {
   console.log("Downloading...")
   console.log(recorder.state)
-  const blob = new Blob(file)
-  const link = document.createElement('a');
-  link.style.display = "none";
-  const url = URL.createObjectURL(blob);
-  link.href = url;
-  link.download = `recording_${timeStamp}.webm`;
-  document.body.appendChild(link);
-  link.click();
+  const blob = new Blob(recordedChunks)
+  const link = document.createElement('a')
+  link.style.display = "none"
+  const url = URL.createObjectURL(blob)
+  link.href = url
+  link.download = `recording_${timeStamp}.webm`
+  document.body.appendChild(link)
+  link.click()
   document.body.removeChild(link)
-  URL.revokeObjectURL(url);
-  sendRecordedChunks()
+  URL.revokeObjectURL(url)
 }
 
 

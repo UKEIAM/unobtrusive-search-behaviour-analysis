@@ -102,13 +102,21 @@ function downloadProcessed(data) {
   const url = URL.createObjectURL(new Blob([data.buffer], { type: "video/mp4" }));
   const link = document.createElement("a");
   link.href = url;
-  link.download = outputFilename;
+  link.download = outputfilename;
   link.click();
   URL.revokeObjectURL(url);
 //sendRecordedChunks()
 }
 
-function downloadRaw() {
+async function downloadRaw() {
+  let label
+  const resp = await chrome.storage.local.get(['label'])
+  if (resp.label != undefined){
+    label = resp.label
+  }
+  else {
+    label  = 'unlabeled'
+  }
   console.log("Downloading...")
   const blob = new Blob(recordedChunks)
   const link = document.createElement("a");

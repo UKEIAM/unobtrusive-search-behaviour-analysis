@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 import moment from "moment";
 import { Grid } from "@mui/material"
 // TODO: ffmpeg is causing build to crash -> heap size
-//import ffmpeg from "ffmpeg.js/ffmpeg-worker-webm";
+import { createFFmpeg } from "@ffmpeg/ffmpeg";
 
 async function FileProcess() {
     let rawJSON = undefined
@@ -14,6 +14,11 @@ async function FileProcess() {
     let screen = false
     let mouse = false
     let navigation = false
+
+    const ffmpeg = createFFmpeg({
+        log: true,
+    });
+    await ffmpeg.load();
 
     const processJSON = (rawJSON) => {
         let webVTTRaw = []
@@ -100,10 +105,10 @@ async function FileProcess() {
             webVTT: webVTT
         }).then((resp) => {
             if (screen) {
-                //embedSubtitles(webVTTRaw).then((resp) => {
-                // handleFiles(resp.outputFilename)
+                embedSubtitles(webVTT).then((resp) => {
+                handleFiles(resp.outputFilename)
                 console.log('TODO: Embed subtitlees')
-             // })
+            })
             }
             else {
               handleFiles()
@@ -113,25 +118,59 @@ async function FileProcess() {
 
 
     // TODO: Current use of plain "ffmpeg.js" libary destroys build due to heap limit (known bug, but not fixed)
-    // const embedSubtitles = async (webVTTRaw) => {
-//         const recordedChunks = await chrome.storage.local.get(['recordedChunks'])
-    //     const timeStamp = new Date()
+    const embedSubtitles = async (webVTT) => {
+        // const recordedChunks = await chrome.storage.local.get(['recordedChunks'])
+        // const timeStamp = new Date()
 
-    //     // Run FFmpeg to embed the subtitles in the video
-    //     const outputFilename = `${timeStamp}_usba.mp4`;
-    //     const args = [
-    //         "-i", recordedChunks,
-    //         "-i", "data:text/vtt;base64," + Buffer.toString(String, webvtt),
-    //         "-c", "copy",
-    //         outputFilename
-    //     ];
-    //     ffmpeg().run(...args);
+        // // Run FFmpeg to embed the subtitles in the video
+        // const outputFilename = `${timeStamp}_usba.mp4`;
+        // const args = [
+        //     "-i", recordedChunks,
+        //     "-i", "data:text/vtt;base64," + Buffer.toString(String, webvtt),
+        //     "-c", "copy",
+        //     outputFilename
+        // ];
+        // ffmpeg().run(...args);
 
-    //     // Download the output file
-    //     return outputFilename
-    // }
+        // // Download the output file
+        // return outputFilename
+
+        const recordedChunks = await chrome.storage.local.get(['recordedChunks'])
+        const timeStamp = new Date()
+
+        // Run FFmpeg to embed the subtitles in the video
+        const outputFilename = `${timeStamp}_usba.mp4`;
+
+        // Read the recordedChunks from chrome storage as a Blob
+        const recordedChunksBlob = new Blob([recordedChunks.recordedChunks], { type: 'video/webm' });
+
+        // Convert the Blob to a Uint8Array
+        const recordedChunksArray = new Uint8Array(await recordedChunksBlob.arrayBuffer());
+
+        // Embed the subtitles in the video using FFmpeg
+        await ffmpeg.run("-i", recordedChunksArray, "-i", "data:text/vtt;base64," + Buffer.toString(String, webVTT), "-c", "copy", outputFilename);
+
+        // Download the output file
+        const data = ffmpeg.FS("readFile", outputFilename);
+
+        return data
+    }
 
     const handleFiles = async (finalRecording) => {
+<<<<<<< HEAD
+=======
+        // Entrypoint for file handling.
+        // Either download them to local machine or connect API endpoint to tranfer to
+        console.log("Downloading...")
+        if (finalRecording) {
+            const loading = true
+            await chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+                chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRecording", data: finalRecording})
+            })
+            loading = false
+        }
+        console.log("DEBUG: Data passed to download")
+>>>>>>> ffmpeg-issue-resolving
 
         console.log("Downloading...")
         console.log("DEBUG: Data passed to download")
@@ -168,12 +207,15 @@ async function FileProcess() {
     })
     await chrome.storage.local.get(['screen']).then((resp) => {
         screen = resp.screen
+<<<<<<< HEAD
     })
     await chrome.storage.local.get(['mouse']).then((resp) => {
         mouse = resp.mouse
     })
     await chrome.storage.local.get(['navigation']).then((resp) => {
         navigation = resp.navigation
+=======
+>>>>>>> ffmpeg-issue-resolving
     })
     await chrome.storage.local.get(['rawJSON']).then((resp) => {
         rawJSON = resp.rawJSON

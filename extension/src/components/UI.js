@@ -89,11 +89,11 @@ function UI(props) {
             recording: true,
             initialTimeStamp: initialTimeStamp,
         })
+
         setRecording(true)
         if (userOptions.screen) {
             chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-                chrome.tabs.sendMessage(tabs[0].id, { message: "start" }).then((resp) => {
-                })
+                chrome.tabs.sendMessage(tabs[0].id, { message: "start" })
             })
         }
 
@@ -123,8 +123,7 @@ function UI(props) {
         })
         if (screen) {
             chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-                chrome.tabs.sendMessage(tabs[0].id, { message: "stop" }).then((resp) => {
-                })
+                chrome.tabs.sendMessage(tabs[0].id, { message: "stop" })
             })
         }
     }
@@ -149,7 +148,14 @@ function UI(props) {
         console.log('Processing data...')
         await chrome.runtime.sendMessage({ message: "feedback_recieved" }).then(() => {
             // Call file preprocessor
-            FileProcess()
+            if(navigation || mouse){
+                FileProcess()
+            }
+            else{
+                chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+                    chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawRec" })
+                })
+            }
         })
     }
 
@@ -162,17 +168,25 @@ function UI(props) {
                     onClose={closeDialog}
                     ></ResetDialog>
                 <Grid item>
-                    <IconButton variant="text" style={{ marginRight: "1vh", marginBottom: "7px"}} onClick={!record ? startRecording : stopRecording}>
+                    {(!screen && !navigation && !mouse) ? (
+                         <IconButton disabled variant="text" style={{ marginRight: "1vh", marginBottom: "7px"}} onClick={!record ? startRecording : stopRecording}>
+                             <MdOutlineNotStarted
+                                 style={{ fontSize:"50px"}}
+                             ></MdOutlineNotStarted>
+                        </IconButton>
+                    ) : (
+                        <IconButton variant="text" style={{ marginRight: "1vh", marginBottom: "7px"}} onClick={!record ? startRecording : stopRecording}>
                         {!record ? (
                             <MdOutlineNotStarted
                                 style={{ fontSize:"50px", color: "red" }}
                             ></MdOutlineNotStarted>
                         ) : (
                             <RiStopCircleLine
-                            style={{ fontSize:"50px", color: "red"}}
-                        ></RiStopCircleLine>
-                        )}
-                    </IconButton>
+                                style={{ fontSize:"50px", color: "red"}}
+                            ></RiStopCircleLine>
+                            )}
+                        </IconButton>
+                    )}
                 </Grid>
                 <Grid>
                     <FormGroup>

@@ -11,12 +11,13 @@ async function FileProcess() {
     let rawJSON = undefined
     let initialTimeStamp = undefined
     let loading = false
-    let screen = false
+    let screen = true
 
+    console.log("Before ffmpeg creation")
     const ffmpeg = createFFmpeg({
         log: true,
     });
-    await ffmpeg.load();
+    console.log("Created ffmpeg (NOT LOADED YET)")
 
     const processJSON = (rawJSON) => {
         let webVTTRaw = []
@@ -27,7 +28,7 @@ async function FileProcess() {
         rawJSON.navData.forEach((row) => {
             let nestedDict = {
                 timeStamp: row['timeStamp'],
-                text: row['transitionType']
+                text: 'Transition : ' + row['transitionType']
             }
             raw.push(nestedDict)
         })
@@ -35,7 +36,7 @@ async function FileProcess() {
         rawJSON.clickData.forEach((row) =>{
             let nestedDict = {
                 timeStamp: row['timeStamp'],
-                text: 'Click on <' + row["tag"] + '> ' + 'x-coordinate: ' + row['coordinates']['x'] + ' y-coordinate: ' + row['coordinates']['y']
+                text: 'Click on element: '+ row['tag'] + ' x-coordinate: ' + row['coordinates']['x'] + ' y-coordinate: ' + row['coordinates']['y']
             }
             raw.push(nestedDict)
         })
@@ -96,20 +97,19 @@ async function FileProcess() {
 
         webVTTRaw.forEach(caption => {
             webVTT += `${caption.start} --> ${caption.end}\n`;
-            webVTT += `${caption.text}\n\n`;
+            webVTT += `- ${caption.text}\n\n`;
         });
 
         chrome.storage.local.set({
             webVTT: webVTT
-        }).then((resp) => {
+        }).then(() => {
             if (screen) {
                 embedSubtitles(webVTT).then((resp) => {
-                handleFiles(resp.outputFilename)
-                console.log('TODO: Embed subtitlees')
-            })
-            }
-            else {
-              handleFiles()
+                    console.log("Finished Embedding")
+                    //handleFiles(resp.finalRecording, resp.outputFilename)
+                })
+            } else {
+                handleFiles()
             }
         })
     }
@@ -134,34 +134,41 @@ async function FileProcess() {
         // return outputFilename
 
         const recordedChunks = await chrome.storage.local.get(['recordedChunks'])
+        const label = await chrome.storage.local.get(['label'])
         const timeStamp = new Date()
 
         // Run FFmpeg to embed the subtitles in the video
-        const outputFilename = `${timeStamp}_usba.mp4`;
+        const outputFilename = `usba_${timeStamp}_${label}.mp4`;
 
         // Read the recordedChunks from chrome storage as a Blob
+        console.log("Debugging: Before Blob creation")
         const recordedChunksBlob = new Blob([recordedChunks.recordedChunks], { type: 'video/webm' });
-
+        console.log("Debugging: After Blob creation")
         // Convert the Blob to a Uint8Array
         const recordedChunksArray = new Uint8Array(await recordedChunksBlob.arrayBuffer());
 
-        // Embed the subtitles in the video using FFmpeg
+        // TODO This one fails with CSP issues
+        await ffmpeg.load();
+        console.log("Loaded ffmpeg")
         await ffmpeg.run("-i", recordedChunksArray, "-i", "data:text/vtt;base64," + Buffer.toString(String, webVTT), "-c", "copy", outputFilename);
 
         // Download the output file
-        const data = ffmpeg.FS("readFile", outputFilename);
+        const finalRecording = ffmpeg.FS("readFile", outputFilename);
 
-        return data
+        return finalRecording, outputFilename
     }
 
-    const handleFiles = async (finalRecording) => {
+    const handleFiles = async (finalRecording, outputFilename) => {
         // Entrypoint for file handling.
         // Either download them to local machine or connect API endpoint to tranfer to
         console.log("Downloading...")
         if (finalRecording) {
             const loading = true
             await chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-                chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRecording", data: finalRecording})
+                chrome.tabs.sendMessage(tabs[0].id, {
+                    message: "downloadRecording",
+                    data: {finalRecording: finalRecording, outputFilename: outputFilename}
+                })
             })
             loading = false
         }
@@ -190,7 +197,8 @@ async function FileProcess() {
         initialTimeStamp = resp.initialTimeStamp
     })
     await chrome.storage.local.get(['screen']).then((resp) => {
-        screen = resp.screen
+        //screen = resp.screen
+        console.log("Test Output:" + resp.screen + " " + screen)
     })
     await chrome.storage.local.get(['rawJSON']).then((resp) => {
         rawJSON = resp.rawJSON

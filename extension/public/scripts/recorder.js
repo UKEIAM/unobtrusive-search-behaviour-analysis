@@ -1,7 +1,7 @@
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-    console.log("Recording message received")
+    console.log("Message recieved: " + request.message)
     if(request.message === "reset") {
       console.log("Stopped screen capturing")
       cancelled = true
@@ -15,7 +15,7 @@ chrome.runtime.onMessage.addListener(
       stopCapture()
     }
     if(request.message === "downloadProcessedRec") {
-      downloadProcessed(request.data)
+      downloadProcessed(request.data.finalRecording, request.data.outputFilename)
     }
     if(request.message === "downloadRawRec")
       downloadRaw()
@@ -97,15 +97,14 @@ function changeRecordingState() {
   })
 }
 
-function downloadProcessed(data) {
+function downloadProcessed(recording, outputFilename) {
   console.log("Downloading...")
-  const url = URL.createObjectURL(new Blob([data.buffer], { type: "video/mp4" }));
+  const url = URL.createObjectURL(new Blob([recording.buffer], { type: "video/mp4" }));
   const link = document.createElement("a");
   link.href = url;
-  link.download = outputfilename;
+  link.download = outputFilename;
   link.click();
   URL.revokeObjectURL(url);
-//sendRecordedChunks()
 }
 
 async function downloadRaw() {
@@ -123,7 +122,7 @@ async function downloadRaw() {
   link.style.display = "none";
   const url = URL.createObjectURL(blob);
   link.href = url;
-  link.download = `recording_${timeStamp}.webm`;
+  link.download = `recording_${timeStamp}_${label}.webm`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link)

@@ -157,8 +157,6 @@ async function FileProcess() {
     }
 
     const handleFiles = async (finalRecording) => {
-<<<<<<< HEAD
-=======
         // Entrypoint for file handling.
         // Either download them to local machine or connect API endpoint to tranfer to
         console.log("Downloading...")
@@ -170,7 +168,6 @@ async function FileProcess() {
             loading = false
         }
         console.log("DEBUG: Data passed to download")
->>>>>>> ffmpeg-issue-resolving
 
         console.log("Downloading...")
         console.log("DEBUG: Data passed to download")
@@ -207,15 +204,6 @@ async function FileProcess() {
     })
     await chrome.storage.local.get(['screen']).then((resp) => {
         screen = resp.screen
-<<<<<<< HEAD
-    })
-    await chrome.storage.local.get(['mouse']).then((resp) => {
-        mouse = resp.mouse
-    })
-    await chrome.storage.local.get(['navigation']).then((resp) => {
-        navigation = resp.navigation
-=======
->>>>>>> ffmpeg-issue-resolving
     })
     await chrome.storage.local.get(['rawJSON']).then((resp) => {
         rawJSON = resp.rawJSON

@@ -20,17 +20,10 @@
       "storage"
     ],
     "manifest_version": 3,
-<<<<<<< HEAD
     "version": "0.9.0",
-=======
-    "version": "0.9.1",
->>>>>>> ffmpeg-issue-resolving
     "action": {
       "default_popup": "index.html",
       "default_title": "USBA"
-    },
-    "content_security_policy": {
-      "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; script-src-elem 'self' blob:; script-src-attr 'self' 'wasm-unsafe-eval';"
     },
     "background": {
       "service_worker": "service-worker.js",
@@ -41,12 +34,6 @@
             "matches": ["<all_urls>"],
             "js": ["scripts/mouse-behaviour.js", "scripts/recorder.js", "scripts/downloader.js"]
         }
-    ],
-    "web_accessible_resources": [
-      {
-        "resources": [ "getCreateFFmpegCore.js" ],
-        "matches": [ "<all_urls>" ]
-      }
     ],
     "author": "@kevin.kraus@studium.uni-hamburg.de"
   }

@@ -10,7 +10,7 @@ chrome.runtime.onMessage.addListener(
         stopClickTracking()
       }
     }
-  )
+)
 
 function startClickTracking() {
     document.addEventListener("click", (event) => {

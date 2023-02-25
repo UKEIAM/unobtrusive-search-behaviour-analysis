@@ -1,42 +1,48 @@
 {
-    "short_name": "USBA",
-    "name": "Unobtrusive Search Beahviour Analysis",
-    "icons":
+  "short_name": "USBA",
+  "name": "Unobtrusive Search Beahviour Analysis",
+  "icons":
+  {
+    "16": "favicon.ico",
+    "48": "logo192.png",
+    "128": "logo512.png"
+  },
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "scripting",
+    "desktopCapture",
+    "webNavigation",
+    "<all_urls>",
+    "storage"
+  ],
+  "manifest_version": 3,
+  "version": "0.9.1",
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "USBA"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; media-src chrome-extension://*"
+  },
+  "background": {
+    "service_worker": "service-worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+      {
+          "matches": ["<all_urls>"],
+          "js": ["scripts/mouse-behaviour.js", "scripts/recorder.js", "scripts/downloader.js", "vendor/ffmpeg.min.js", "vendor/ffmpeg-core.js", "scripts/transcode.js", "vendor/coi-serviceworker.min.js"]
+      }
+  ],
+  "web_accessible_resources": [
     {
-      "16": "favicon.ico",
-      "48": "logo192.png",
-      "128": "logo512.png"
-    },
-    "host_permissions": [
-      "<all_urls>"
-    ],
-    "permissions": [
-      "tabs",
-      "activeTab",
-      "scripting",
-      "desktopCapture",
-      "webNavigation",
-      "<all_urls>",
-      "storage"
-    ],
-    "manifest_version": 3,
-    "version": "0.9.1",
-    "action": {
-      "default_popup": "index.html",
-      "default_title": "USBA"
-    },
-    "content_security_policy": {
-      "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
-    },
-    "background": {
-      "service_worker": "service-worker.js",
-      "type": "module"
-    },
-    "content_scripts": [
-        {
-            "matches": ["<all_urls>"],
-            "js": ["scripts/mouse-behaviour.js", "scripts/recorder.js", "scripts/downloader.js"]
-        }
-    ],
-    "author": "@kevin.kraus@studium.uni-hamburg.de"
-  }
+     "resources":[ "vendor/ffmpeg-core.js",  "vendor/ffmpeg-core.wasm", "vendor/ffmpeg-core.worker.js"],
+     "matches": ["<all_urls>"]
+    }
+  ],
+  "author": "@kevin.kraus@studium.uni-hamburg.de"
+}

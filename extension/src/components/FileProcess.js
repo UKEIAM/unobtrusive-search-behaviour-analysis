@@ -12,6 +12,7 @@ async function FileProcess() {
     let initialTimeStamp = undefined
     let loading = false
     let screen = true
+    let webVTT = 'WEBVTT\n\n';
 
     console.log("Before ffmpeg creation")
     const ffmpeg = createFFmpeg({
@@ -22,7 +23,6 @@ async function FileProcess() {
     const processJSON = (rawJSON) => {
         let webVTTRaw = []
         let raw = []
-        let webVTT = 'WEBVTT\n\n';
         loading = true
 
         rawJSON.navData.forEach((row) => {
@@ -103,75 +103,30 @@ async function FileProcess() {
         chrome.storage.local.set({
             webVTT: webVTT
         }).then(() => {
-            if (screen) {
-                embedSubtitles(webVTT).then((resp) => {
-                    console.log("Finished Embedding")
-                    //handleFiles(resp.finalRecording, resp.outputFilename)
-                })
-            } else {
+            // if (screen) {
+            //     embedSubtitles(webVTT).then((resp) => {
+            //         console.log("Finished Embedding")
+            //         //handleFiles(resp.finalRecording, resp.outputFilename)
+            //     })
+            // } else {
                 handleFiles()
-            }
+            //}
         })
     }
 
 
     // TODO: Current use of plain "ffmpeg.js" libary destroys build due to heap limit (known bug, but not fixed)
-    const embedSubtitles = async (webVTT) => {
-        // const recordedChunks = await chrome.storage.local.get(['recordedChunks'])
-        // const timeStamp = new Date()
-
-        // // Run FFmpeg to embed the subtitles in the video
-        // const outputFilename = `${timeStamp}_usba.mp4`;
-        // const args = [
-        //     "-i", recordedChunks,
-        //     "-i", "data:text/vtt;base64," + Buffer.toString(String, webvtt),
-        //     "-c", "copy",
-        //     outputFilename
-        // ];
-        // ffmpeg().run(...args);
-
-        // // Download the output file
-        // return outputFilename
-
-        const recordedChunks = await chrome.storage.local.get(['recordedChunks'])
-        const label = await chrome.storage.local.get(['label'])
-        const timeStamp = new Date()
-
-        // Run FFmpeg to embed the subtitles in the video
-        const outputFilename = `usba_${timeStamp}_${label}.mp4`;
-
-        // Read the recordedChunks from chrome storage as a Blob
-        console.log("Debugging: Before Blob creation")
-        const recordedChunksBlob = new Blob([recordedChunks.recordedChunks], { type: 'video/webm' });
-        console.log("Debugging: After Blob creation")
-        // Convert the Blob to a Uint8Array
-        const recordedChunksArray = new Uint8Array(await recordedChunksBlob.arrayBuffer());
-
-        // TODO This one fails with CSP issues
-        await ffmpeg.load();
-        console.log("Loaded ffmpeg")
-        await ffmpeg.run("-i", recordedChunksArray, "-i", "data:text/vtt;base64," + Buffer.toString(String, webVTT), "-c", "copy", outputFilename);
-
-        // Download the output file
-        const finalRecording = ffmpeg.FS("readFile", outputFilename);
-
-        return finalRecording, outputFilename
-    }
 
     const handleFiles = async (finalRecording, outputFilename) => {
         // Entrypoint for file handling.
         // Either download them to local machine or connect API endpoint to tranfer to
         console.log("Downloading...")
-        if (finalRecording) {
-            const loading = true
-            await chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-                chrome.tabs.sendMessage(tabs[0].id, {
-                    message: "downloadRecording",
-                    data: {finalRecording: finalRecording, outputFilename: outputFilename}
-                })
+        await chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            chrome.tabs.sendMessage(tabs[0].id, {
+                message: "transcode", data: webVTT
             })
-            loading = false
-        }
+        })
+        loading = false
         console.log("DEBUG: Data passed to download")
 
         chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {

@@ -130,19 +130,12 @@ async function FileProcess() {
     // }
 
     const handleFiles = async (finalRecording) => {
-        // Entrypoint for file handling.
-        // Either download them to local machine or connect API endpoint to tranfer to
-        console.log("Downloading...")
-        // if (finalRecording) {
-        //     const loading = true
-        //     await chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-            //     chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRecording", data: finalRecording})
-        //     })
-    //         loading = false
-        //     })
-        // }
-        console.log("DEBUG: Data passed to download")
 
+        console.log("Downloading...")
+        console.log("DEBUG: Data passed to download")
+        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRecording"})
+        })
         chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
             chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawData"})
         })

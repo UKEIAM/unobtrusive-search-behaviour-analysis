@@ -13,7 +13,7 @@ chrome.runtime.onMessage.addListener(
       stopCapture()
     }
     if(request.message === 'downloadRecording') {
-      download(request.data)
+      download()
     }
   }
 )
@@ -97,7 +97,7 @@ function changeRecordingState() {
   })
 }
 
-function download (file) {
+function download () {
   console.log("Downloading...")
   console.log(recorder.state)
   const blob = new Blob(file)

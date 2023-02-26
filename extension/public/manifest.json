@@ -20,13 +20,10 @@
     "storage"
   ],
   "manifest_version": 3,
-  "version": "0.9.1",
+  "version": "0.9.0",
   "action": {
     "default_popup": "index.html",
     "default_title": "USBA"
-  },
-  "content_security_policy": {
-    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; media-src chrome-extension://*"
   },
   "background": {
     "service_worker": "service-worker.js",
@@ -35,14 +32,8 @@
   "content_scripts": [
       {
           "matches": ["<all_urls>"],
-          "js": ["scripts/mouse-behaviour.js", "scripts/recorder.js", "scripts/downloader.js", "vendor/ffmpeg.min.js", "vendor/ffmpeg-core.js", "scripts/transcode.js", "vendor/coi-serviceworker.min.js"]
+          "js": ["scripts/mouse-behaviour.js", "scripts/recorder.js", "scripts/downloader.js"]
       }
-  ],
-  "web_accessible_resources": [
-    {
-     "resources":[ "vendor/ffmpeg-core.js",  "vendor/ffmpeg-core.wasm", "vendor/ffmpeg-core.worker.js"],
-     "matches": ["<all_urls>"]
-    }
   ],
   "author": "@kevin.kraus@studium.uni-hamburg.de"
 }

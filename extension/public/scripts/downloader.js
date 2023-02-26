@@ -8,6 +8,8 @@ chrome.runtime.onMessage.addListener(
         }
 })
 
+
+
 // TODO: Summarize all available data into one json before downloading?
 async function downloadJSON() {
     await chrome.storage.local.get(['rawJSON']).then((resp) => {
@@ -17,7 +19,7 @@ async function downloadJSON() {
         const link = document.createElement('a');
         link.style.display = "none";
         link.href = url;
-        link.download = `raw_json${Date.now()}.json`;
+        link.download = `raw_json${resp.initialTimeStamp}.json`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link)
@@ -32,7 +34,7 @@ async function downloadWebVTT() {
         const link = document.createElement('a');
         link.style.display = "none";
         link.href = url;
-        link.download = `webVTT_${Date.now()}.vtt`;
+        link.download = `webVTT_${resp.initialTimeStamp}.vtt`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link)

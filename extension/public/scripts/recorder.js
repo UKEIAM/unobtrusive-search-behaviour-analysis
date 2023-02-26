@@ -14,9 +14,6 @@ chrome.runtime.onMessage.addListener(
       console.log("Stopped screen capturing")
       stopCapture()
     }
-    if(request.message === "downloadProcessedRec") {
-      downloadProcessed(request.data.finalRecording, request.data.outputFilename)
-    }
     if(request.message === "downloadRawRec")
       downloadRaw()
   }
@@ -97,19 +94,10 @@ function changeRecordingState() {
   })
 }
 
-function downloadProcessed(recording, outputFilename) {
-  console.log("Downloading...")
-  const url = URL.createObjectURL(new Blob([recording.buffer], { type: "video/mp4" }));
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = outputFilename;
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
 async function downloadRaw() {
   let label
   const resp = await chrome.storage.local.get(['label'])
+  const resp2 = await chrome.storage.local.get(['initialTimeStamp'])
   if (resp.label != undefined){
     label = resp.label
   }
@@ -122,7 +110,7 @@ async function downloadRaw() {
   link.style.display = "none";
   const url = URL.createObjectURL(blob);
   link.href = url;
-  link.download = `recording_${timeStamp}_${label}.webm`;
+  link.download = `recording_${resp2.initialTimeStamp}_${label}.webm`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link)

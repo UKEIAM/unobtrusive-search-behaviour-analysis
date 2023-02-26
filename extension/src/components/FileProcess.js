@@ -3,27 +3,17 @@ import * as React from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import moment from "moment";
-import { Grid } from "@mui/material"
-// TODO: ffmpeg is causing build to crash -> heap size
-import { createFFmpeg } from "@ffmpeg/ffmpeg";
+
 
 async function FileProcess() {
     let rawJSON = undefined
     let initialTimeStamp = undefined
-    let loading = false
     let screen = true
     let webVTT = 'WEBVTT\n\n';
-
-    console.log("Before ffmpeg creation")
-    const ffmpeg = createFFmpeg({
-        log: true,
-    });
-    console.log("Created ffmpeg (NOT LOADED YET)")
 
     const processJSON = (rawJSON) => {
         let webVTTRaw = []
         let raw = []
-        loading = true
 
         rawJSON.navData.forEach((row) => {
             let nestedDict = {
@@ -110,17 +100,15 @@ async function FileProcess() {
 
     // TODO: Current use of plain "ffmpeg.js" libary destroys build due to heap limit (known bug, but not fixed)
 
-    const handleFiles = async () => {
+    const handleFiles = () => {
         // Entrypoint for file handling.
         // Either download them to local machine or connect API endpoint to tranfer to
         console.log("Downloading...")
+        console.log(screen)
         if(screen){
-            await chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-                chrome.tabs.sendMessage(tabs[0].id, {
-                    message: "transcode", data: webVTT
-                })
+            chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+                chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawRec" })
             })
-            loading = false
         }
 
         chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
@@ -138,19 +126,14 @@ async function FileProcess() {
                 chrome.storage.sync.clear(); // callback is optional
             })
         })
-        loading = false
     }
 
     // Load all required data asynchronously
     await chrome.storage.local.get(['initialTimeStamp']).then((resp) => {
         initialTimeStamp = resp.initialTimeStamp
     })
-    await chrome.storage.local.get(['screen']).then((resp) => {
+    await chrome.storage.local.get(['userOptions.screen']).then((resp) => {
         screen = resp.screen
-    })
-    await chrome.storage.local.get(['screen']).then((resp) => {
-        //screen = resp.screen
-        console.log("Test Output:" + resp.screen + " " + screen)
     })
     await chrome.storage.local.get(['rawJSON']).then((resp) => {
         rawJSON = resp.rawJSON
@@ -160,15 +143,7 @@ async function FileProcess() {
 
     return(
         <div>
-            { loading &&
-            <Grid>
-                <Grid item>
-                <Box sx={{ display: 'flex' }}>
-                    <CircularProgress />
-                </Box>
-                </Grid>
-            </Grid>
-            }
+            Success
       </div>
     )
 }

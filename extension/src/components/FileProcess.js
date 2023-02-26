@@ -103,31 +103,25 @@ async function FileProcess() {
         chrome.storage.local.set({
             webVTT: webVTT
         }).then(() => {
-            // if (screen) {
-            //     embedSubtitles(webVTT).then((resp) => {
-            //         console.log("Finished Embedding")
-            //         //handleFiles(resp.finalRecording, resp.outputFilename)
-            //     })
-            // } else {
                 handleFiles()
-            //}
         })
     }
 
 
     // TODO: Current use of plain "ffmpeg.js" libary destroys build due to heap limit (known bug, but not fixed)
 
-    const handleFiles = async (finalRecording, outputFilename) => {
+    const handleFiles = async () => {
         // Entrypoint for file handling.
         // Either download them to local machine or connect API endpoint to tranfer to
         console.log("Downloading...")
-        await chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-            chrome.tabs.sendMessage(tabs[0].id, {
-                message: "transcode", data: webVTT
+        if(screen){
+            await chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+                chrome.tabs.sendMessage(tabs[0].id, {
+                    message: "transcode", data: webVTT
+                })
             })
-        })
-        loading = false
-        console.log("DEBUG: Data passed to download")
+            loading = false
+        }
 
         chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
             chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawData"})
@@ -150,6 +144,9 @@ async function FileProcess() {
     // Load all required data asynchronously
     await chrome.storage.local.get(['initialTimeStamp']).then((resp) => {
         initialTimeStamp = resp.initialTimeStamp
+    })
+    await chrome.storage.local.get(['screen']).then((resp) => {
+        screen = resp.screen
     })
     await chrome.storage.local.get(['screen']).then((resp) => {
         //screen = resp.screen

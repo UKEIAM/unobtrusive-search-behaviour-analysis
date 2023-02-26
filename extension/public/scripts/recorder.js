@@ -1,6 +1,6 @@
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-    console.log("Message recieved " +request.message)
+    console.log("Message recieved: " + request.message)
     if(request.message === "reset") {
       console.log("Stopped screen capturing")
       cancelled = true

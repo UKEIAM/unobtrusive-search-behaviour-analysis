@@ -132,8 +132,8 @@ async function FileProcess() {
     await chrome.storage.local.get(['initialTimeStamp']).then((resp) => {
         initialTimeStamp = resp.initialTimeStamp
     })
-    await chrome.storage.local.get(['userOptions.screen']).then((resp) => {
-        screen = resp.screen
+    await chrome.storage.local.get(['userOptions']).then((resp) => {
+        screen = resp.userOptions.screen
     })
     await chrome.storage.local.get(['rawJSON']).then((resp) => {
         rawJSON = resp.rawJSON

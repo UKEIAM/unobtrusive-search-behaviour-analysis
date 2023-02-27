@@ -1,2 +1,2 @@
 # unobtrusive-search-behaviour-analysis
-Study project with IAM x UHH
+Project by IAM x UHH

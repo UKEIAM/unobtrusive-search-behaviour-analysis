@@ -29,17 +29,44 @@ const displayMediaOptions = {
   audio: false
 };
 
-let recorder;
-let recordedChunks=[];
-let stream;
+let recorder
+let recordedChunks = [];
+let stream
+let unloadConfirmed = false
 
 function handleBeforeUnload(event) {
   event.preventDefault();
-  event.returnValue = "Data will be lost if you leave the page, are you sure?";
+  event.returnValue = '';
+  // Display a confirmation dialog
+  const confirmationMessage = "Please keep the tab where recording has been started open. Data will be lost if you leave the page, are you sure?";
+  event.returnValue = confirmationMessage;
+
+  // Set the unloadConfirmed flag based on the user's response
+  setTimeout(() => {
+    if (unloadConfirmed === false) {
+      unloadConfirmed = confirm(confirmationMessage);
+    }
+  }, 100);
+}
+
+function unloadHandler(event) {
+  if (unloadConfirmed === true) {
+    stopCapture()
+    chrome.runtime.sendMessage({ message: "reset" })
+    chrome.storage.local.set({
+        userOptions: {
+            screen: true,
+            navigation: true,
+            mouse: true,
+        },
+        recording: false,
+      })
+  }
 }
 
 function startCapture() {
   window.addEventListener("beforeunload", handleBeforeUnload)
+  window.addEventListener("unload", unloadHandler)
   navigator.mediaDevices.getDisplayMedia(displayMediaOptions).then((s) => {
     stream = s
     // Create a new MediaRecorder object
@@ -65,6 +92,7 @@ function startCapture() {
     }
   }).catch((err) => {
     window.removeEventListener("beforeunload", handleBeforeUnload)
+    window.removeEventListener("unload", )
     console.error(`Error:${err}`)
     chrome.storage.local.set({
       recording: false

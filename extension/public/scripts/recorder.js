@@ -24,7 +24,8 @@ let timeStamp = Date.now()
 
 const displayMediaOptions = {
   video: {
-    displaySurface: "monitor"
+    displaySurface: "monitor",
+    frameRate: 20.0
   },
   audio: false
 };

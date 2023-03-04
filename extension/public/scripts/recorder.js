@@ -33,6 +33,8 @@ let recorder
 let recordedChunks = [];
 let stream
 let unloadConfirmed = false
+let duration;
+let initialTimeStamp;
 
 function handleBeforeUnload(event) {
   event.preventDefault();
@@ -123,26 +125,26 @@ function changeRecordingState() {
 }
 
 async function downloadRaw() {
+  const timeStamp = await chrome.storage.local.get(['initialTimeStamp'])
+  const duration = await chrome.storage.local.get(['duration'])
   let label
   const resp = await chrome.storage.local.get(['label'])
-  const resp2 = await chrome.storage.local.get(['initialTimeStamp'])
   if (resp.label != undefined){
     label = resp.label
   }
   else {
     label  = 'unlabeled'
   }
-  console.log("Downloading...")
+  console.log("downloadRaw function entered")
   const blob = new Blob(recordedChunks)
+  const video = URL.createObjectURL(blob);
+  video.duration = duration.duration
   const link = document.createElement("a");
   link.style.display = "none";
-  const url = URL.createObjectURL(blob);
-  link.href = url;
-  link.download = `recording_${resp2.initialTimeStamp}_${label}.webm`;
-  document.body.appendChild(link);
+  link.href = video;
+  link.download = `recording_${timeStamp.initialTimeStamp}_${label}.webm`;
   link.click();
-  document.body.removeChild(link)
-  URL.revokeObjectURL(url);
+  URL.revokeObjectURL(video);
 }
 
 

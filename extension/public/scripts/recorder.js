@@ -73,12 +73,17 @@ function startCapture() {
   navigator.mediaDevices.getDisplayMedia(displayMediaOptions).then((s) => {
     stream = s
     // Create a new MediaRecorder object
-    const options = { mimeType: "video/webm; codecs=vp9" };
+    const options = { mimeType: 'video/webm; codecs="vp9"'};
     recorder = new MediaRecorder(stream, options);
     // Start recording
     recorder.ondataavailable = (e) => {
       recordedChunks.push(e.data)
     };
+      initialTimeStamp = Date.now()
+      console.log("Initial timestamp set: " + initialTimeStamp)
+      chrome.storage.local.set({
+          initialTimeStamp: initialTimeStamp,
+      })
     recorder.start();
     recorder.onstop = (e) => {
       changeRecordingState()
@@ -87,15 +92,17 @@ function startCapture() {
         console.log(recorder.state)
       }
       else {
+        duration = (Date.now() - initialTimeStamp) / 1000
         chrome.storage.local.set({
           triggerFeedback: true,
-          recordedChunks: recordedChunks
+          recordedChunks: recordedChunks,
+          duration: duration
         })
       }
     }
   }).catch((err) => {
     window.removeEventListener("beforeunload", handleBeforeUnload)
-    window.removeEventListener("unload", )
+    window.removeEventListener("unload", unloadHandler)
     console.error(`Error:${err}`)
     chrome.storage.local.set({
       recording: false

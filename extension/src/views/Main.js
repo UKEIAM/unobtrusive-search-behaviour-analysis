@@ -9,8 +9,8 @@ function MainView() {
             <div style={{ marginBottom: '', fontSize: '20px'}}>
                 {' '}
                 <span>
-                    <h1>MTB Screen Capturing</h1>
-                    <p>Unobtrusive Search Behaviour Analysis</p>
+                    <h1>USBA</h1>
+                    <p>Unobtrusive Search Behaviour Analysis: A study project</p>
                 </span>
             </div>
             <UI debug={debug} />

@@ -10,7 +10,7 @@ chrome.runtime.onMessage.addListener(
         stopClickTracking()
       }
     }
-  )
+)
 
 function startClickTracking() {
     document.addEventListener("click", (event) => {
@@ -23,9 +23,9 @@ function startClickTracking() {
             click: 'left-click',
             tag: event.target.localName,
             domElementMeta: {
-                outerText: event.target.outerText,
-                outerHTML: event.target.outerHTML,
-                innerText: event.target.innerText,
+                // outerText: event.target.outerText,
+                // outerHTML: event.target.outerHTML,
+                // innerText: event.target.innerText,
                 innerHTML: event.target.innerHTML,
                 ownerDocument: event.target.ownerDocument.location,
                 URL: event.target.ownerDocument.URL

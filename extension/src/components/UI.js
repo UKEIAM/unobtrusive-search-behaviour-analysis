@@ -83,14 +83,8 @@ function UI(props) {
 
     const startRecording = () => {
         console.log("RECORDING INITIALISED")
-        let initialTimeStamp = Date.now()
-        console.log("Initial timestamp set: " + initialTimeStamp)
-        chrome.storage.local.set({
-            recording: true,
-            initialTimeStamp: initialTimeStamp,
-        })
-
         setRecording(true)
+
         if (userOptions.screen) {
             console.log('Screen')
             chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -112,6 +106,7 @@ function UI(props) {
                 navigation: userOptions.navigation,
                 mouse: userOptions.mouse
             },
+            recording: true,
         })
     }
 

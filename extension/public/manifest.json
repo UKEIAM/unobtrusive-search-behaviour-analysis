@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
     "short_name": "USBA",
     "name": "Unobtrusive Search Beahviour Analysis",
     "icons":
@@ -37,3 +38,43 @@
     ],
     "author": "@kevin.kraus@studium.uni-hamburg.de"
   }
+=======
+  "short_name": "USBA",
+  "name": "Unobtrusive Search Beahviour Analysis",
+  "icons":
+  {
+    "16": "favicon.ico",
+    "48": "logo192.png",
+    "128": "logo512.png"
+  },
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "scripting",
+    "desktopCapture",
+    "webNavigation",
+    "<all_urls>",
+    "storage"
+  ],
+  "manifest_version": 3,
+  "version": "1.0.0",
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "USBA"
+  },
+  "background": {
+    "service_worker": "service-worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+      {
+          "matches": ["<all_urls>"],
+          "js": ["scripts/mouse-behaviour.js", "scripts/recorder.js", "scripts/downloader.js"]
+      }
+  ],
+  "author": "@kevin.kraus@studium.uni-hamburg.de"
+}
+>>>>>>> origin/working-prototype

@@ -3,20 +3,26 @@ import * as React from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import moment from "moment";
+<<<<<<< HEAD
 import { Grid } from "@mui/material"
+=======
+>>>>>>> origin/working-prototype
 
 
 async function FileProcess() {
     let rawJSON = undefined
     let initialTimeStamp = undefined
+<<<<<<< HEAD
     let loading = false
     let screen = false
+=======
+    let screen = true
+    let webVTT = 'WEBVTT\n\n';
+>>>>>>> origin/working-prototype
 
     const processJSON = (rawJSON) => {
         let webVTTRaw = []
         let raw = []
-        let webVTT = 'WEBVTT\n\n';
-        loading = true
 
         rawJSON.navData.forEach((row) => {
             let nestedDict = {
@@ -29,7 +35,11 @@ async function FileProcess() {
         rawJSON.clickData.forEach((row) =>{
             let nestedDict = {
                 timeStamp: row['timeStamp'],
+<<<<<<< HEAD
                 text: 'Click on element: '+ row['tag'] + 'x-coordinate: ' + row['coordinates']['x'] + ' y-coordinate: ' + row['coordinates']['y']
+=======
+                text: 'Click on element: '+ row['tag'] + ' x-coordinate: ' + row['coordinates']['x'] + ' y-coordinate: ' + row['coordinates']['y']
+>>>>>>> origin/working-prototype
             }
             raw.push(nestedDict)
         })
@@ -95,6 +105,7 @@ async function FileProcess() {
 
         chrome.storage.local.set({
             webVTT: webVTT
+<<<<<<< HEAD
         }).then((resp) => {
             handleFiles()
         })
@@ -106,6 +117,26 @@ async function FileProcess() {
         await chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
             chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawRec"})
         })
+=======
+        }).then(() => {
+                handleFiles()
+        })
+    }
+
+
+    // TODO: Current use of plain "ffmpeg.js" libary destroys build due to heap limit (known bug, but not fixed)
+
+    const handleFiles = () => {
+        // Entrypoint for file handling.
+        // Either download them to local machine or connect API endpoint to tranfer to
+        console.log("Downloading...")
+        console.log(screen)
+        if(screen){
+            chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+                chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawRec" })
+            })
+        }
+>>>>>>> origin/working-prototype
 
         chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
             chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawData"})
@@ -122,13 +153,18 @@ async function FileProcess() {
                 chrome.storage.sync.clear(); // callback is optional
             })
         })
-        loading = false
     }
 
     // Load all required data asynchronously
     await chrome.storage.local.get(['initialTimeStamp']).then((resp) => {
         initialTimeStamp = resp.initialTimeStamp
     })
+<<<<<<< HEAD
+=======
+    await chrome.storage.local.get(['userOptions']).then((resp) => {
+        screen = resp.userOptions.screen
+    })
+>>>>>>> origin/working-prototype
     await chrome.storage.local.get(['rawJSON']).then((resp) => {
         rawJSON = resp.rawJSON
         console.log(rawJSON)
@@ -137,15 +173,7 @@ async function FileProcess() {
 
     return(
         <div>
-            { loading &&
-            <Grid>
-                <Grid item>
-                <Box sx={{ display: 'flex' }}>
-                    <CircularProgress />
-                </Box>
-                </Grid>
-            </Grid>
-            }
+            Success
       </div>
     )
 }

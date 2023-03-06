@@ -46,7 +46,6 @@ async function FileProcess() {
         // 2.1
         let init = moment(initialTimeStamp)
         const lenRaw = raw.length
-        console.log(raw)
         console.log("Initial timestamp: " + init )
 
         for (var index = 0; index < lenRaw; index++) {
@@ -80,8 +79,6 @@ async function FileProcess() {
             webVTTRaw.push(entry)
         }
 
-            console.log("JSON Raw")
-            console.log(raw)
             console.log("WebVTTRaw")
             console.log(webVTTRaw)
 
@@ -103,7 +100,6 @@ async function FileProcess() {
     const handleFiles = () => {
         // Entrypoint for file handling.
         // Either download them to local machine or connect API endpoint to tranfer to
-        console.log("Downloading...")
         console.log(screen)
         if(screen){
             chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
@@ -138,8 +134,8 @@ async function FileProcess() {
     await chrome.storage.local.get(['rawJSON']).then((resp) => {
         rawJSON = resp.rawJSON
         console.log(rawJSON)
-        processJSON(resp.rawJSON)
     })
+    processJSON(rawJSON)
 
     return(
         <div>

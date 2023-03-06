@@ -13,14 +13,8 @@ chrome.runtime.onMessage.addListener(
       console.log("Stopped screen capturing")
       stopCapture()
     }
-<<<<<<< HEAD
-    if(request.message === "downloadRawRec"){
-        downloadRaw()
-      }
-=======
     if(request.message === "downloadRawRec")
       downloadRaw()
->>>>>>> origin/working-prototype
   }
 )
 
@@ -137,14 +131,9 @@ function changeRecordingState() {
   })
 }
 
-<<<<<<< HEAD
-async function downloadRaw(label) {
-  console.log("Downloading...")
-=======
 async function downloadRaw() {
   const timeStamp = await chrome.storage.local.get(['initialTimeStamp'])
   const duration = await chrome.storage.local.get(['duration'])
->>>>>>> origin/working-prototype
   let label
   const resp = await chrome.storage.local.get(['label'])
   if (resp.label != undefined){
@@ -153,24 +142,14 @@ async function downloadRaw() {
   else {
     label  = 'unlabeled'
   }
-<<<<<<< HEAD
-=======
   console.log("downloadRaw function entered")
->>>>>>> origin/working-prototype
   const blob = new Blob(recordedChunks)
   const video = URL.createObjectURL(blob);
   video.duration = duration.duration
   const link = document.createElement("a");
   link.style.display = "none";
-<<<<<<< HEAD
-  const url = URL.createObjectURL(blob);
-  link.href = url;
-  link.download = `recording_${timeStamp}_ ${label}.webm`;
-  document.body.appendChild(link);
-=======
   link.href = video;
   link.download = `recording_${timeStamp.initialTimeStamp}_${label}.webm`;
->>>>>>> origin/working-prototype
   link.click();
   URL.revokeObjectURL(video);
 }

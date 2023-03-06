@@ -20,11 +20,7 @@ async function downloadJSON() {
         const link = document.createElement('a');
         link.style.display = "none";
         link.href = url;
-<<<<<<< HEAD
-        link.download = `raw_json${Date.now()}.json`;
-=======
         link.download = `raw_json_${timeStamp.initialTimeStamp}.json`;
->>>>>>> origin/working-prototype
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link)

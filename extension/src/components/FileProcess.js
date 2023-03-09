@@ -18,7 +18,7 @@ async function FileProcess() {
         rawJSON.navData.forEach((row) => {
             let nestedDict = {
                 timeStamp: row['timeStamp'],
-                text: 'Transition : ' + row['transitionType']
+                text: 'Transition: ' + row['transitionType']
             }
             raw.push(nestedDict)
         })
@@ -26,7 +26,7 @@ async function FileProcess() {
         rawJSON.clickData.forEach((row) =>{
             let nestedDict = {
                 timeStamp: row['timeStamp'],
-                text: 'Click on element: '+ row['tag'] + ' x-coordinate: ' + row['coordinates']['x'] + ' y-coordinate: ' + row['coordinates']['y']
+                text: row['click'] + ' , x-coordinate: ' + row['coordinates']['x'] + ' ,y-coordinate: ' + row['coordinates']['y']
             }
             raw.push(nestedDict)
         })

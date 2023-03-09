@@ -17,6 +17,12 @@ chrome.runtime.onMessage.addListener(
       await chrome.storage.local.get(['label']).then((resp) => {
         label = resp.label
       })
+      await chrome.storage.local.get(['initialTimeStamp']).then((resp) => {
+        initialTimeStamp = resp.initialTimeStamp
+      })
+      await chrome.storage.local.get(['duration']).then((resp) => {
+        duration = resp.duration
+      })
       downloadRaw()
     }
   }
@@ -28,7 +34,7 @@ let timeStamp = Date.now()
 const displayMediaOptions = {
   video: {
     displaySurface: "monitor",
-    frameRate: 20.0
+    frameRate: 10.0
   },
   audio: false
 };
@@ -137,16 +143,14 @@ function changeRecordingState() {
 }
 
 async function downloadRaw() {
-  const timeStamp = await chrome.storage.local.get(['initialTimeStamp'])
-  const duration = await chrome.storage.local.get(['duration'])
-  console.log("downloadRaw function entered: " + label)
+  console.log("downloadRaw function entered: " + initialTimeStamp)
   const blob = new Blob(recordedChunks)
   const video = URL.createObjectURL(blob);
-  video.duration = duration.duration
+  video.duration = duration
   const link = document.createElement("a");
   link.style.display = "none";
   link.href = video;
-  link.download = `recording_${timeStamp.initialTimeStamp}_${label}.webm`;
+  link.download = `recording_${initialTimeStamp}_${label}.webm`;
   link.click();
   URL.revokeObjectURL(video);
 }

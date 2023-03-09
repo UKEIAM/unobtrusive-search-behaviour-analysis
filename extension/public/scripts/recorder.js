@@ -1,5 +1,5 @@
 chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
+  async function(request, sender, sendResponse) {
     console.log("Message recieved: " + request.message)
     if(request.message === "reset") {
       console.log("Stopped screen capturing")
@@ -13,8 +13,12 @@ chrome.runtime.onMessage.addListener(
       console.log("Stopped screen capturing")
       stopCapture()
     }
-    if(request.message === "downloadRawRec")
+    if(request.message === "downloadRawRec") {
+      await chrome.storage.local.get(['label']).then((resp) => {
+        label = resp.label
+      })
       downloadRaw()
+    }
   }
 )
 
@@ -35,12 +39,13 @@ let stream
 let unloadConfirmed = false
 let duration;
 let initialTimeStamp;
+let label;
 
 function handleBeforeUnload(event) {
   event.preventDefault();
   event.returnValue = '';
   // Display a confirmation dialog
-  const confirmationMessage = "Please keep the tab where recording has been started open. Data will be lost if you leave the page, are you sure?";
+  const confirmationMessage = "INFO: Please keep the tab where recording has been started open. Data will be lost if you leave the page, are you sure?";
   event.returnValue = confirmationMessage;
 
   // Set the unloadConfirmed flag based on the user's response
@@ -134,15 +139,7 @@ function changeRecordingState() {
 async function downloadRaw() {
   const timeStamp = await chrome.storage.local.get(['initialTimeStamp'])
   const duration = await chrome.storage.local.get(['duration'])
-  let label
-  const resp = await chrome.storage.local.get(['label'])
-  if (resp.label != undefined){
-    label = resp.label
-  }
-  else {
-    label  = 'unlabeled'
-  }
-  console.log("downloadRaw function entered")
+  console.log("downloadRaw function entered: " + label)
   const blob = new Blob(recordedChunks)
   const video = URL.createObjectURL(blob);
   video.duration = duration.duration

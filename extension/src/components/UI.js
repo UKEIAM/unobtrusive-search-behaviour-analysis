@@ -128,10 +128,6 @@ function UI(props) {
         }
     }
 
-    const uploadToServer = () => {
-        // TODO: Access remote folder via API and upload mediaBlobUrl
-    }
-
     // Reset recorder after triggering reset button or after successful recording and feedback
     const resetRecorder = () => {
         chrome.runtime.sendMessage({ message: "reset" })

@@ -11,16 +11,17 @@ function FeedbackWidged(props) {
 
     const [showThanks, setShowThanks] = React.useState(false)
 
-    const finishFeedback = (value) => {
-        chrome.storage.local.set({
+    const finishFeedback = async (value) => {
+        await chrome.storage.local.set({
             label: value,
             triggerFeedback: false,
         }).then(() => {
+            console.log(value)
             setShowThanks(true)
             callBack(value)
         })
-
     }
+    
     return(
         <div>
             <Grid>

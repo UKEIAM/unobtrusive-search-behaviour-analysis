@@ -122,22 +122,19 @@ async function preprocessJSON() {
   // 1. Create concat file from NavData, ClickData & Feedback
   let rawJSON = undefined
 
-  await chrome.storage.local.get(['label']).then((resp) => {
-    rawJSON = {
-        navData: navigationData,
-        clickData: mouseTracking,
-        label: resp.label
-      }
-    })
+  const label = await chrome.storage.local.get(['label'])
+  rawJSON = {
+      navData: navigationData,
+      clickData: mouseTracking,
+      label: label.label
+    }
 
   console.log(rawJSON)
-  await chrome.storage.local.set({
-    rawJSON: rawJSON
-  }).then(() =>
+  await chrome.storage.local.set({rawJSON: rawJSON}).then(() => {
     navigationData = [],
     mouseTracking = []
+  }
   )
-
 }
 
 function resetData() {

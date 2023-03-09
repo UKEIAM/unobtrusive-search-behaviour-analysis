@@ -51,7 +51,7 @@ function handleBeforeUnload(event) {
   event.preventDefault();
   event.returnValue = '';
   // Display a confirmation dialog
-  const confirmationMessage = "INFO: Please keep the tab where recording has been started open. Data will be lost if you leave the page, are you sure?";
+  const confirmationMessage = "INFO: Please keep the tab where recording has been started open. Data will be lost if you leave the page.";
   event.returnValue = confirmationMessage;
 
   // Set the unloadConfirmed flag based on the user's response

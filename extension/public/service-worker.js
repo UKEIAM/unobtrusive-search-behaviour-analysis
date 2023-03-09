@@ -1,7 +1,6 @@
 // MAIN FUNCTION ORCHESTRATION
 chrome.runtime.onMessage.addListener(
   async function(request, sender, sendResponse) {
-    //safetyFunction()
     if (request.message === "start_navigation_tracking") {
       isNavTrackingEnabled = true
       startNavigationTracking()
@@ -12,7 +11,6 @@ chrome.runtime.onMessage.addListener(
     }
     // Track any click event
     if (request.message === "click_tracked") {
-      // TODO: Unsexy workaround, since listeners won't stop. Workaround just stops saving data
       if (isClickTrackingEnabled) {
         mouseTracking.push(request.data)
         console.log(request.data)
@@ -51,8 +49,8 @@ let navigationData = []
 let recordedChunks = []
 let isNavTrackingEnabled = false
 let isClickTrackingEnabled = false
-// FUNCTIONS
 
+// FUNCTIONS
 // Save navigational data
 function formatNavigationData(data) {
   var date = new Date ();
@@ -61,7 +59,6 @@ function formatNavigationData(data) {
   var seconds = date.getSeconds();
   var milliseconds = date.getMilliseconds();
   data.timeStampVTT = hours + ":" + minutes + ":" + seconds + "." + milliseconds
-  // TODO: Unsexy workaround part 2
   if (data.transitionType !== 'auto_subframe' && isNavTrackingEnabled){
     navigationData.push(data)
     console.log(data)
@@ -70,10 +67,7 @@ function formatNavigationData(data) {
 
 function uploadRecordingToServer(recordedChunks) {
   let recBlob = new Blob(recordedChunks)
-  // console.log(recBlob)
-  // Transfer to cloud
-  // Downloading from service-worker.js not possible, since URL is not accessible by the service-worker -> API only
-
+  // OPTION FOR ADDING API CALL TO ANY CLOUD STORAGE
   let navigation_tracking = JSON.stringify(navigationData);
   let mouse_tracking = JSON.stringify(mouseTracking)
   console.log(navigation_tracking)
@@ -100,7 +94,7 @@ function startClickTracking() {
       chrome.tabs.sendMessage(tab.id, {message: "start_click_tracking"});
     })
   })
-  // TODO: Listeners are not firing currently
+
   // Cover all tab interactions
   chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if(changeInfo.status == "complete") {

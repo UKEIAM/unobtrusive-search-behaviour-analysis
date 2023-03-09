@@ -9,8 +9,6 @@ chrome.runtime.onMessage.addListener(
 })
 
 
-
-// TODO: Summarize all available data into one json before downloading?
 async function downloadJSON() {
     const timeStamp = await chrome.storage.local.get(['initialTimeStamp'])
     await chrome.storage.local.get(['rawJSON']).then((resp) => {

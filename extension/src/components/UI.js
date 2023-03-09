@@ -11,6 +11,7 @@ import FormControlLabel from "@mui/material/FormControlLabel"
 import FormGroup from "@mui/material/FormGroup"
 import FeedbackWidget from "@components/FeedbackWidget"
 import FileProcess from "./FileProcess"
+import Tooltip from '@mui/material/Tooltip';
 
 
 function UI(props) {
@@ -142,16 +143,17 @@ function UI(props) {
     }
     const continueProcessing = async () => {
         console.log('Processing data...')
-        await chrome.runtime.sendMessage({ message: "feedback_recieved" }).then(() => {
-            // Call file preprocessor
-            if(navigation || mouse){
-                FileProcess()
-            }
-            else {
-                chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-                    chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawRec" })
-                })
-            }
+        chrome.runtime.sendMessage({ message: "feedback_recieved" }, (response) => {
+            console.log(response)
+              // Call file preprocessor
+        if(navigation || mouse){
+            FileProcess()
+        }
+        else {
+            chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+                chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawRec" })
+            })
+        }
         })
     }
 
@@ -186,12 +188,14 @@ function UI(props) {
                     )}
                 </Grid>
                 <Grid>
-                    <FormGroup>
-                        <FormControlLabel disabled={record} control={<Checkbox checked={screen} onClick={handleChange} name="screen" />} label="Record screen" />
-                        <FormControlLabel disabled={record} control={<Checkbox checked={navigation} onClick={handleChange} name="navigation" />} label="Track navigation" />
-                        <FormControlLabel disabled={record} control={<Checkbox checked={mouse} onClick={handleChange} name="mouse"/>} label="Track mouse" />
-                    </FormGroup>
-                    </Grid>
+                    <Tooltip title="For the purpose of the Masters Thesis, all options are required." placement="top">
+                        <FormGroup>
+                            <FormControlLabel disabled control={<Checkbox checked={screen} onClick={handleChange} name="screen" />} label="Record screen" />
+                            <FormControlLabel disabled control={<Checkbox checked={navigation} onClick={handleChange} name="navigation" />} label="Track navigation" />
+                            <FormControlLabel disabled control={<Checkbox checked={mouse} onClick={handleChange} name="mouse"/>} label="Track mouse" />
+                        </FormGroup>
+                    </Tooltip>
+                </Grid>
                 <Grid item>
                     {record === true ? (
                         <IconButton onClick={openDialog} style={{ marginBottom: "6vh"}}>

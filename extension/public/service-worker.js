@@ -39,7 +39,8 @@ chrome.runtime.onMessage.addListener(
       isNavTrackingEnabled = false
       stopClickTracking()
       stopNavigationTracking()
-      preprocessJSON()
+      const resolve = await preprocessJSON()
+      sendResponse(resolve)
     }
   });
 

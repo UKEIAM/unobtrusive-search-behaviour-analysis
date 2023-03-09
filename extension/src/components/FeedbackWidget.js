@@ -21,7 +21,7 @@ function FeedbackWidged(props) {
             callBack(value)
         })
     }
-    
+
     return(
         <div>
             <Grid>

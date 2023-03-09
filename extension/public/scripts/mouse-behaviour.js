@@ -23,7 +23,7 @@ function startClickTracking() {
             click: 'left-click',
             tag: event.target.localName,
             domElementMeta: {
-                innerHTML: event.target.innerHTML,
+                // innerHTML: event.target.innerHTML,
                 ownerDocument: event.target.ownerDocument.location,
                 URL: event.target.ownerDocument.URL
             },

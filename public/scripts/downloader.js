@@ -10,35 +10,36 @@ chrome.runtime.onMessage.addListener(
 
 
 async function downloadJSON() {
+    console.log('JSON Download entered')
     const timeStamp = await chrome.storage.local.get(['initialTimeStamp'])
-    chrome.storage.local.get(['rawJSON']).then((resp) => {
-        obj = JSON.stringify(resp.rawJSON)
-        let blob = new Blob([obj], {type : 'application/json'});
-        let url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.style.display = "none";
-        link.href = url;
-        link.download = `raw_json_${timeStamp.initialTimeStamp}.json`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link)
-        URL.revokeObjectURL(url);
-    })
+    const resp = await chrome.storage.local.get(['rawJSON'])
+
+    obj = JSON.stringify(resp.rawJSON)
+    let blob = new Blob([obj], {type : 'application/json'});
+    let url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.style.display = "none";
+    link.href = url;
+    link.download = `raw_json_${timeStamp.initialTimeStamp}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url);
 }
 
 async function downloadWebVTT() {
+    console.log('WebVTT Download entered')
     const timeStamp = await chrome.storage.local.get(['initialTimeStamp'])
-    chrome.storage.local.get(['webVTT']).then((resp) => {
-        const blob = new Blob([resp.webVTT], { type: 'text/plain' });
-        let url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.style.display = "none";
-        link.href = url;
-        link.download = `webVTT_${timeStamp.initialTimeStamp}.vtt`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link)
-        URL.revokeObjectURL(url);
-    })
+    const resp = await chrome.storage.local.get(['webVTT'])
+    const blob = new Blob([resp.webVTT], { type: 'text/plain' });
+    let url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.style.display = "none";
+    link.href = url;
+    link.download = `webVTT_${timeStamp.initialTimeStamp}.vtt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url);
 }
 

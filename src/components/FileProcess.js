@@ -11,7 +11,8 @@ async function FileProcess() {
     let screen = true
     let webVTT = 'WEBVTT\n\n';
 
-    const processJSON = (rawJSON) => {
+    const processJSON = async (rawJSON) => {
+        console.log(rawJSON)
         let webVTTRaw = []
         let raw = []
 
@@ -86,8 +87,9 @@ async function FileProcess() {
             webVTT += `${caption.start} --> ${caption.end}\n`;
             webVTT += `- ${caption.text}\n\n`;
         });
-
-        chrome.storage.local.set({
+        
+        console.log(webVTT)
+        await chrome.storage.local.set({
             webVTT: webVTT
         }).then(() => {
                 handleFiles()
@@ -130,7 +132,6 @@ async function FileProcess() {
     })
     await chrome.storage.local.get(['rawJSON']).then((resp) => {
         rawJSON = resp.rawJSON
-        console.log(rawJSON)
     })
     processJSON(rawJSON)
 

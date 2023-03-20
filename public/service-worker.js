@@ -12,8 +12,8 @@ chrome.runtime.onMessage.addListener(
     // Track any click event
     if (request.message === "click_tracked") {
       if (isClickTrackingEnabled) {
-        mouseTracking.push(request.data)
         console.log(request.data)
+        mouseTracking.push(request.data)
       }
     }
     if (request.message === "reset") {
@@ -71,13 +71,10 @@ function uploadRecordingToServer(recordedChunks) {
   // OPTION FOR ADDING API CALL TO ANY CLOUD STORAGE
   let navigation_tracking = JSON.stringify(navigationData);
   let mouse_tracking = JSON.stringify(mouseTracking)
-  console.log(navigation_tracking)
-  console.log(mouse_tracking)
 }
 
 // Start and stop the meta collection when recording has been started
 function startNavigationTracking() {
-  console.log("Navigation tracking started")
   chrome.webNavigation.onCommitted.addListener((details) => {
     details.timeStamp = Date.now()
     formatNavigationData(details)

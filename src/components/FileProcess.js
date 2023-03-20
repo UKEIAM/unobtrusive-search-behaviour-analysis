@@ -94,9 +94,6 @@ async function FileProcess() {
         })
     }
 
-
-    // TODO: Current use of plain "ffmpeg.js" libary destroys build due to heap limit (known bug, but not fixed)
-
     const handleFiles = () => {
         // Entrypoint for file handling.
         // Either download them to local machine or connect API endpoint to tranfer to

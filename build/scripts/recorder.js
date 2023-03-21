@@ -40,8 +40,7 @@ const displayMediaOptions = {
 
 let recorder
 let recordedChunks = [];
-let stream
-let unloadConfirmed = false
+let stream;
 let duration;
 let initialTimeStamp;
 let label;
@@ -50,23 +49,25 @@ let sharedDisplayId;
 function handleBeforeUnload(event) {
   event.returnValue = "";
 }
-function unloadHandler(event) {
-  stopCapture()
-  chrome.runtime.sendMessage({ message: "reset" })
-  chrome.storage.local.set({
-      userOptions: {
-        screen: true,
-        navigation: true,
-        mouse: true,
-      },
-      recording: false,
-    })
-  unloadConfirmed === true
-}
+
+// TODO: Consider -> Should realy everything be deleted after the user refreshes the site? I mean, the scree recording is lost then, but at least the metadata stays there
+// function unloadHandler(event) {
+//   stopCapture()
+//   chrome.runtime.sendMessage({ message: "reset" })
+//   chrome.storage.local.set({
+//       userOptions: {
+//         screen: true,
+//         navigation: true,
+//         mouse: true,
+//       },
+//       recording: false,
+//     })
+
+// }
 
 function startCapture() {
   window.addEventListener("beforeunload", handleBeforeUnload);
-  window.addEventListener("unload", unloadHandler);
+  //window.addEventListener("unload", unloadHandler);
 
   navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
     .then((stream) => {
@@ -91,7 +92,7 @@ function startCapture() {
         console.log('Stopped');
         changeRecordingState();
         window.removeEventListener("beforeunload", handleBeforeUnload);
-        window.removeEventListener("unload", unloadHandler);
+        // window.removeEventListener("unload", unloadHandler);
 
         if (cancelled) {
           console.log(recorder.state);
@@ -115,7 +116,7 @@ function startCapture() {
     .catch((error) => {
       console.error(`Error: ${error}`);
       window.removeEventListener("beforeunload", handleBeforeUnload);
-      window.removeEventListener("unload", unloadHandler);
+      //window.removeEventListener("unload", unloadHandler);
       chrome.storage.local.set({ recording: false });
       chrome.runtime.sendMessage({ message: "rec_permission_denied" });
     });

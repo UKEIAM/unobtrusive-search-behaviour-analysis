@@ -87,9 +87,9 @@ async function FileProcess() {
             webVTT += `${caption.start} --> ${caption.end}\n`;
             webVTT += `- ${caption.text}\n\n`;
         });
-        
+
         console.log(webVTT)
-        await chrome.storage.local.set({
+        chrome.storage.local.set({
             webVTT: webVTT
         }).then(() => {
                 handleFiles()

@@ -94,7 +94,8 @@ function UI(props) {
             chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
                 chrome.tabs.sendMessage(tabs[0].id, { message: "start" })
                 if(chrome.runtime.lastError) {
-                    console.log(error)
+                    // TODO: Warning mechanism to tell user that some webpage should be opened
+                    console.log(chrome.runtime.lastError)
                     alert("Please enter a website. The extensions access is not allowed from home pages.")
                 }
             })

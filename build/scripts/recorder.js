@@ -27,6 +27,23 @@ chrome.runtime.onMessage.addListener(
   }
 )
 
+// TODO: Experimental
+// Make sure that the tab of the screen recorder stays open and all redirects etc. are opened in a new tab
+document.querySelectorAll("a").forEach(link => {
+  link.addEventListener("click", event => {
+    event.preventDefault();
+    chrome.tabs.create({ url: link.href });
+  });
+});
+
+
+document.querySelectorAll("form").forEach(form => {
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+    chrome.tabs.create({ url: form.action + "?" + new URLSearchParams(new FormData(form)).toString() });
+  });
+});
+
 let cancelled = false
 let timeStamp = Date.now()
 
@@ -50,24 +67,10 @@ function handleBeforeUnload(event) {
   event.returnValue = "";
 }
 
-// TODO: Consider -> Should realy everything be deleted after the user refreshes the site? I mean, the scree recording is lost then, but at least the metadata stays there
-// function unloadHandler(event) {
-//   stopCapture()
-//   chrome.runtime.sendMessage({ message: "reset" })
-//   chrome.storage.local.set({
-//       userOptions: {
-//         screen: true,
-//         navigation: true,
-//         mouse: true,
-//       },
-//       recording: false,
-//     })
-
-// }
 
 function startCapture() {
-  window.addEventListener("beforeunload", handleBeforeUnload);
-  //window.addEventListener("unload", unloadHandler);
+  // window.addEventListener("beforeunload", handleBeforeUnload);
+  // window.addEventListener("unload", unloadHandler);
 
   navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
     .then((stream) => {
@@ -141,15 +144,17 @@ function changeRecordingState() {
 
 async function downloadRaw() {
   console.log("downloadRaw function entered: " + initialTimeStamp)
-  const blob = new Blob(recordedChunks)
-  const video = URL.createObjectURL(blob);
-  video.duration = duration
-  const link = document.createElement("a");
-  link.style.display = "none";
-  link.href = video;
-  link.download = `recording_${initialTimeStamp}_${label}.webm`;
-  link.click();
-  URL.revokeObjectURL(video);
+  if (recordedChunks.length > 0) {
+    const blob = new Blob(recordedChunks)
+    const video = URL.createObjectURL(blob);
+    video.duration = duration
+    const link = document.createElement("a");
+    link.style.display = "none";
+    link.href = video;
+    link.download = `recording_${initialTimeStamp}_${label}.webm`;
+    link.click();
+    URL.revokeObjectURL(video);
+  }
 }
 
 

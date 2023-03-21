@@ -37,6 +37,7 @@
         console.log('WebVTT Download entered')
         chrome.storage.local.get(['initialTimeStamp']).then((timeStamp) => {
             chrome.storage.local.get(['webVTT']).then((resp) => {
+                console.log(resp)
                 if (resp && resp.webVTT) {
                     const blob = new Blob([resp.webVTT], { type: 'text/plain' });
                     let url = URL.createObjectURL(blob);
@@ -50,6 +51,7 @@
                     URL.revokeObjectURL(url);
                 }
                 else {
+                    console.log(resp.webVTT)
                     console.log('webVTT not loaded properly (again)')
                 }
             })

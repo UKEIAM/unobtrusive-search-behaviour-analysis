@@ -29,19 +29,24 @@ chrome.runtime.onMessage.addListener(
 
 // TODO: Experimental
 // Make sure that the tab of the screen recorder stays open and all redirects etc. are opened in a new tab
-document.querySelectorAll("a").forEach(link => {
-  link.addEventListener("click", event => {
+document.addEventListener('click', function(event) {
+  // Check if the target element is a link
+  if (event.target.tagName === 'A') {
+    // Open the link in a new tab
+    chrome.tabs.create({ url: event.target.href });
+    // Prevent the default link action
     event.preventDefault();
-    chrome.tabs.create({ url: link.href });
-  });
+  }
 });
 
-
-document.querySelectorAll("form").forEach(form => {
-  form.addEventListener("submit", event => {
+document.addEventListener('submit', function(event) {
+  // Check if the target element is a form
+  if (event.target.tagName === 'FORM') {
+    // Open the form submission URL in a new tab
+    chrome.tabs.create({ url: event.target.action });
+    // Prevent the default form submission action
     event.preventDefault();
-    chrome.tabs.create({ url: form.action + "?" + new URLSearchParams(new FormData(form)).toString() });
-  });
+  }
 });
 
 let cancelled = false

@@ -93,6 +93,10 @@ function UI(props) {
             console.log('Screen')
             chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
                 chrome.tabs.sendMessage(tabs[0].id, { message: "start" })
+                if(chrome.runtime.lastError) {
+                    console.log(error)
+                    alert("Please enter a website. The extensions access is not allowed from home pages.")
+                }
             })
         }
 

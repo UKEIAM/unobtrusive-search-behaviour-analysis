@@ -31,7 +31,7 @@
   },
   "content_scripts": [
       {
-          "matches": ["<all_urls>", ""],
+          "matches": ["<all_urls>"],
           "js": ["scripts/mouse-behaviour.js", "scripts/recorder.js", "scripts/downloader.js"]
       }
   ],

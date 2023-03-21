@@ -82,7 +82,7 @@ function startCapture() {
   navigator.mediaDevices.getDisplayMedia(displayMediaOptions).then((s) => {
     stream = s
     // Create a new MediaRecorder object
-    const options = { mimeType: 'video/webm; codecs="vp9"'};
+    const options = { mimeType: 'video/webm; codecs="vp8"'};
     recorder = new MediaRecorder(stream, options);
     // Start recording
     recorder.ondataavailable = (e) => {

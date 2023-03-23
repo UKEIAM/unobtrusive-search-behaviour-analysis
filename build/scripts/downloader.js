@@ -12,7 +12,7 @@
     async function downloadJSON() {
         console.log('JSON Download entered')
         const timeStamp = await chrome.storage.local.get(['initialTimeStamp'])
-        const rawJSON = await chrome.storage.local.get(['rawJSON'])
+        const resp = await chrome.storage.local.get(['rawJSON'])
         console.log('WebVTT downloader: ')
         const obj = JSON.stringify(resp.rawJSON);
         const blob = new Blob([obj], {type : 'application/json'});

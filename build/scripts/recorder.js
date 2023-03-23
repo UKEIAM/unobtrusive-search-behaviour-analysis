@@ -3,7 +3,7 @@ chrome.runtime.onMessage.addListener(
     if(request.message === "reset") {
       console.log("Stopped screen capturing")
       cancelled = true
-      resetRecorder()
+      stopCapture()
     }
     if(request.message === "start") {
       startCapture()
@@ -27,6 +27,28 @@ chrome.runtime.onMessage.addListener(
   }
 )
 
+// TODO: Experimental
+// Make sure that the tab of the screen recorder stays open and all redirects etc. are opened in a new tab
+document.addEventListener('click', function(event) {
+  // Check if the target element is a link
+  if (event.target.tagName === 'A') {
+    // Open the link in a new tab
+    chrome.tabs.create({ url: event.target.href });
+    // Prevent the default link action
+    event.preventDefault();
+  }
+});
+
+document.addEventListener('submit', function(event) {
+  // Check if the target element is a form
+  if (event.target.tagName === 'FORM') {
+    // Open the form submission URL in a new tab
+    chrome.tabs.create({ url: event.target.action });
+    // Prevent the default form submission action
+    event.preventDefault();
+  }
+});
+
 let cancelled = false
 let timeStamp = Date.now()
 
@@ -40,96 +62,80 @@ const displayMediaOptions = {
 
 let recorder
 let recordedChunks = [];
-let stream
-let unloadConfirmed = false
+let stream;
 let duration;
 let initialTimeStamp;
 let label;
+let sharedDisplayId;
 
 function handleBeforeUnload(event) {
-  event.preventDefault();
-  event.returnValue = '';
-  // Display a confirmation dialog
-  const confirmationMessage = "INFO: Please keep the tab where recording has been started open. Data will be lost if you leave the page.";
-  event.returnValue = confirmationMessage;
-
-  // Set the unloadConfirmed flag based on the user's response
-  setTimeout(() => {
-    if (unloadConfirmed === false) {
-      unloadConfirmed = confirm(confirmationMessage);
-    }
-  }, 100);
+  event.returnValue = "";
 }
 
-function unloadHandler(event) {
-  if (unloadConfirmed === true) {
-    stopCapture()
-    chrome.runtime.sendMessage({ message: "reset" })
-    chrome.storage.local.set({
-        userOptions: {
-            screen: true,
-            navigation: true,
-            mouse: true,
-        },
-        recording: false,
-      })
-  }
-}
 
 function startCapture() {
-  window.addEventListener("beforeunload", handleBeforeUnload)
-  window.addEventListener("unload", unloadHandler)
-  navigator.mediaDevices.getDisplayMedia(displayMediaOptions).then((s) => {
-    stream = s
-    // Create a new MediaRecorder object
-    const options = { mimeType: 'video/webm; codecs="vp9"'};
-    recorder = new MediaRecorder(stream, options);
-    // Start recording
-    recorder.ondataavailable = (e) => {
-      recordedChunks.push(e.data)
-    };
-      initialTimeStamp = Date.now()
-      console.log("Initial timestamp set: " + initialTimeStamp)
-      chrome.storage.local.set({
-          initialTimeStamp: initialTimeStamp,
-      })
-    recorder.start();
-    recorder.onstop = (e) => {
-      changeRecordingState()
-      window.removeEventListener("beforeunload", handleBeforeUnload)
-      if (cancelled){
-        console.log(recorder.state)
-      }
-      else {
-        duration = (Date.now() - initialTimeStamp) / 1000
-        chrome.storage.local.set({
-          triggerFeedback: true,
-          recordedChunks: recordedChunks,
-          duration: duration
-        })
-      }
-    }
-  }).catch((err) => {
-    window.removeEventListener("beforeunload", handleBeforeUnload)
-    window.removeEventListener("unload", unloadHandler)
-    console.error(`Error:${err}`)
-    chrome.storage.local.set({
-      recording: false
+  // window.addEventListener("beforeunload", handleBeforeUnload);
+  // window.addEventListener("unload", unloadHandler);
+
+  navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
+    .then((stream) => {
+      // Save the stream
+      window.stream = stream;
+
+      // Create a new MediaRecorder object
+      const options = { mimeType: 'video/webm; codecs="vp8"' };
+      recorder = new MediaRecorder(stream, options);
+
+      // Start recording
+      let initialTimeStamp = null;
+      recorder.ondataavailable = (e) => {
+        recordedChunks.push(e.data);
+      };
+      recorder.onstart = () => {
+        initialTimeStamp = Date.now();
+        console.log(`Initial timestamp set: ${initialTimeStamp}`);
+        chrome.storage.local.set({ initialTimeStamp });
+      };
+      recorder.onstop = () => {
+        console.log('Stopped');
+        changeRecordingState();
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+        // window.removeEventListener("unload", unloadHandler);
+
+        if (cancelled) {
+          console.log(recorder.state);
+        } else {
+          const duration = (Date.now() - initialTimeStamp) / 1000;
+          chrome.storage.local.set({
+            triggerFeedback: true,
+            recordedChunks,
+            duration,
+          });
+        }
+        // Stop the stream
+        stream.getTracks().forEach((track) => track.stop());
+
+        const videoTracks = stream.getVideoTracks();
+        videoTracks.forEach(videoTrack => videoTrack.stop());
+      };
+
+      recorder.start();
     })
-    chrome.runtime.sendMessage({ message: "rec_permission_denied" });
-    return })
+    .catch((error) => {
+      console.error(`Error: ${error}`);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      //window.removeEventListener("unload", unloadHandler);
+      chrome.storage.local.set({ recording: false });
+      chrome.runtime.sendMessage({ message: "rec_permission_denied" });
+    });
 }
+
 
 function sendRecordedChunks () {
   chrome.runtime.sendMessage({ message: "capture_stopped", data: recordedChunks})
 }
 
 function stopCapture () {
-  recorder.stop()
-}
-
-function resetRecorder () {
-  console.log("stopping")
   recorder.stop()
 }
 
@@ -143,15 +149,17 @@ function changeRecordingState() {
 
 async function downloadRaw() {
   console.log("downloadRaw function entered: " + initialTimeStamp)
-  const blob = new Blob(recordedChunks)
-  const video = URL.createObjectURL(blob);
-  video.duration = duration
-  const link = document.createElement("a");
-  link.style.display = "none";
-  link.href = video;
-  link.download = `recording_${initialTimeStamp}_${label}.webm`;
-  link.click();
-  URL.revokeObjectURL(video);
+  if (recordedChunks.length > 0) {
+    const blob = new Blob(recordedChunks)
+    const video = URL.createObjectURL(blob);
+    video.duration = duration
+    const link = document.createElement("a");
+    link.style.display = "none";
+    link.href = video;
+    link.download = `recording_${initialTimeStamp}_${label}.webm`;
+    link.click();
+    URL.revokeObjectURL(video);
+  }
 }
 
 

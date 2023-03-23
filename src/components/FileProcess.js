@@ -80,57 +80,60 @@ async function FileProcess() {
             webVTTRaw.push(entry)
         }
 
-            console.log("WebVTTRaw")
-            console.log(webVTTRaw)
-
         webVTTRaw.forEach(caption => {
             webVTT += `${caption.start} --> ${caption.end}\n`;
             webVTT += `- ${caption.text}\n\n`;
         });
-        
-        console.log(webVTT)
-        await chrome.storage.local.set({
+
+        chrome.storage.local.set({
             webVTT: webVTT
-        }).then(() => {
-                handleFiles()
         })
+        const testWebVTT = await chrome.storage.local.get(['webVTT'])
+        console.log(testWebVTT)
+        handleFiles()
     }
 
-    const handleFiles = () => {
+    const handleFiles = async () => {
         // Entrypoint for file handling.
         // Either download them to local machine or connect API endpoint to tranfer to
-        console.log(screen)
         if(screen){
             chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
                 chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawRec" })
             })
         }
 
-        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+        await chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
             chrome.tabs.sendMessage(tabs[0].id, { message: "downloadRawData"})
         })
-        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-            chrome.tabs.sendMessage(tabs[0].id, { message: "downloadWebVTT"}).then((resp) => {
-                // After downloading everything, clear storage
-                chrome.storage.local.clear(() => {
-                    var error = chrome.runtime.lastError;
-                    if (error) {
-                        console.error(error);
-                    }
-                });
-                chrome.storage.sync.clear(); // callback is optional
-            })
+        await chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            chrome.tabs.sendMessage(tabs[0].id, { message: "downloadWebVTT"})
         })
+
+        // TODO: Fast fix workaround. Later on, dedicated Promise in downloader.js required that returns response to chrome.tabs.sendMesasge once completed
+        setTimeout(() => {
+            chrome.storage.local.clear().then(
+                console.log('Local storage cleared')
+            )
+        },5000)
     }
 
     // Load all required data asynchronously
     await chrome.storage.local.get(['initialTimeStamp']).then((resp) => {
+        if(resp === undefined){
+            console.log('ERROR: loaded initialTimeStamp undefined')
+        }
         initialTimeStamp = resp.initialTimeStamp
     })
     await chrome.storage.local.get(['userOptions']).then((resp) => {
+        if(resp === undefined){
+            console.log('ERROR: loaded userOptions undefined')
+        }
         screen = resp.userOptions.screen
     })
     await chrome.storage.local.get(['rawJSON']).then((resp) => {
+        if(resp === undefined){
+            console.log('ERROR: loaded rawJSON undefined')
+        }
         rawJSON = resp.rawJSON
     })
     processJSON(rawJSON)

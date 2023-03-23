@@ -53,7 +53,7 @@ let isClickTrackingEnabled = false
 
 // FUNCTIONS
 // Save navigational data
-function formatNavigationData(data) {
+let formatNavigationData = (data) => {
   var date = new Date ();
   var hours = date.getHours();
   var minutes = date.getMinutes();

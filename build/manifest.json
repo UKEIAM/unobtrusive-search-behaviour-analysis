@@ -18,7 +18,7 @@
         "unlimitedStorage"
     ],
     "manifest_version": 3,
-    "version": "0.9.4",
+    "version": "0.9.3",
     "action": {
         "default_popup": "index.html",
         "default_title": "USBA"

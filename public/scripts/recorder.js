@@ -53,7 +53,6 @@ function handleBeforeUnload(event) {
 
 function startCapture() {
   window.addEventListener("beforeunload", handleBeforeUnload);
-  window.addEventListener("unload", unloadHandler);
 
   navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
     .then((stream) => {
@@ -78,7 +77,6 @@ function startCapture() {
         console.log('Stopped');
         changeRecordingState();
         window.removeEventListener("beforeunload", handleBeforeUnload);
-        window.removeEventListener("unload", unloadHandler);
 
         if (cancelled) {
           console.log(recorder.state);

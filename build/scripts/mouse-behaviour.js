@@ -2,11 +2,9 @@
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
       if(request.message === 'start_click_tracking') {
-        console.log(request.message)
         startClickTracking()
       }
       if(request.message === 'stop_click_tracking') {
-        console.log('Stopping click tracking')
         stopClickTracking()
       }
     }

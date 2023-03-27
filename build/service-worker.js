@@ -86,13 +86,11 @@ function startClickTracking() {
   chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
   chrome.tabs.sendMessage(tabs[0].id, {message: "start_click_tracking"});
   chrome.tabs.onUpdated.addListener(pageUpdateListener)
-   // Cover for newly created tabs, since extension gets "reloaded" on every change
   chrome.tabs.onCreated.addListener(pageCreatedListener)
   })
 }
 
 function stopClickTracking() {
-  // removeEvents(element, 'click');
   chrome.tabs.query({}, (tabs) => {
     chrome.tabs.sendMessage(tabs[0].id, {message: "stop_click_tracking"});
   })

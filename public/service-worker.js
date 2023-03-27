@@ -11,8 +11,8 @@ chrome.runtime.onMessage.addListener(
     }
     // Track any click event
     if (request.message === "click_tracked") {
+      console.log(request.data)
       if (isClickTrackingEnabled) {
-        console.log(request.data)
         mouseTracking.push(request.data)
       }
     }

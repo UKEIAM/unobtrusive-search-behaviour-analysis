@@ -145,7 +145,7 @@ function UI(props) {
             recording: false,
           })
     }
-    const continueProcessing = async () => {
+    const continueProcessing = () => {
         console.log('Processing data...')
         chrome.runtime.sendMessage({ message: "feedback_recieved" }, (response) => {
             console.log(response)

@@ -9,6 +9,12 @@ chrome.runtime.onMessage.addListener(
       isClickTrackingEnabled = true
       startClickTracking()
     }
+    if (request.message === "start_screen_recording") {
+      startScreenRecording()
+    }
+    if (request.message === "stop_screen_recording") {
+      stopScreenRecording()
+    }
     // Track any click event
     if (request.message === "click_tracked") {
       if (isClickTrackingEnabled) {
@@ -22,6 +28,7 @@ chrome.runtime.onMessage.addListener(
       isNavTrackingEnabled = false
       stopNavigationTracking()
       stopClickTracking()
+      stopScreenRecording()
       resetData()
     }
     // Message from recorder
@@ -73,6 +80,26 @@ function uploadRecordingToServer(recordedChunks) {
   let mouse_tracking = JSON.stringify(mouseTracking)
 }
 
+function startScreenRecording() {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    tabs.forEach((tab) => {
+      chrome.tabs.sendMessage(tab.id, {message: "start"});
+    })
+    if(chrome.runtime.lastError) {
+        console.log(chrome.runtime.lastError)
+        alert("Please enter a website. The extensions access is not allowed from home pages.")
+    }
+  })
+}
+
+function stopScreenRecording() {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    tabs.forEach((tab) => {
+      chrome.tabs.sendMessage(tab.id, {message: "stop"});
+    })
+  })
+}
+
 // Start and stop the meta collection when recording has been started
 function startNavigationTracking() {
   chrome.webNavigation.onCommitted.addListener((details) => {
@@ -113,6 +140,7 @@ function stopClickTracking() {
       chrome.tabs.sendMessage(tab.id, {message: "stop_click_tracking"});
     })
   })
+  // Fixed
   chrome.tabs.onCreated.removeListener(onCreatedListener)
   chrome.tabs.onUpdated.removeListener(onUpdatedListener)
 }

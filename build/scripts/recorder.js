@@ -28,17 +28,6 @@ chrome.runtime.onMessage.addListener(
 )
 
 // TODO: Experimental
-// Make sure that the tab of the screen recorder stays open and all redirects etc. are opened in a new tab
-document.addEventListener('click', function(event) {
-  // Check if the target element is a link
-  if (event.target.tagName === 'A') {
-    // Open the link in a new tab
-    chrome.tabs.create({ url: event.target.href });
-    // Prevent the default link action
-    event.preventDefault();
-  }
-});
-
 document.addEventListener('submit', function(event) {
   // Check if the target element is a form
   if (event.target.tagName === 'FORM') {

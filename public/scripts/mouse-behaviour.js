@@ -12,7 +12,6 @@ chrome.runtime.onMessage.addListener(
 )
 
 function startClickTracking() {
-    // TODO Auslagern!
     const clickEvent = (event) => {
         var date = new Date();
         var hours = date.getHours()

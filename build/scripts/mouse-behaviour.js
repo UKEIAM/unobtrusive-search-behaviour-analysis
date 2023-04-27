@@ -12,7 +12,7 @@ chrome.runtime.onMessage.addListener(
 )
 
 function startClickTracking() {
-    document.addEventListener("click", (event) => {
+    const clickEvent = (event) => {
         var date = new Date();
         var hours = date.getHours()
         var minutes = date.getMinutes()
@@ -34,8 +34,9 @@ function startClickTracking() {
             timeStamp: Date.now()
         }
         chrome.runtime.sendMessage({ message: "click_tracked", data: click_data })
-    })
-    document.addEventListener("contextmenu", (event) => {
+    document.addEventListener("click", clickEvent)
+
+    const contextMenuEvent = (event) => {
         var date = new Date();
         var hours = date.getHours()
         var minutes = date.getMinutes()
@@ -55,9 +56,10 @@ function startClickTracking() {
             timeStamp: Date.now()
         }
         chrome.runtime.sendMessage({ message: "click_tracked", data: click_data })
-    })
+    }
+    document.addEventListener("contextmenu", contextMenuEvent)
 
-    document.addEventListener("auxclick", (event) => {
+    const auxClickEvent = (event) => {
         var date = new Date()
         var hours = date.getHours()
         var minutes = date.getMinutes()
@@ -77,11 +79,13 @@ function startClickTracking() {
             timeStamp: Date.now()
         }
         chrome.runtime.sendMessage({ message: "click_tracked", data: click_data })
-    })
+    }
+    document.addEventListener("auxclick", auxClickEvent)
+    }   
 }
 
 function stopClickTracking() {
-    document.removeEventListener('click', startClickTracking)
-    document.removeEventListener('contextmenu', startClickTracking)
-    document.removeEventListener('auxclick', startClickTracking)
+    document.removeEventListener('click', clickEvent)
+    document.removeEventListener('contextmenu', contextMenuEvent)
+    document.removeEventListener('auxclick', auxClickEvent)
 }

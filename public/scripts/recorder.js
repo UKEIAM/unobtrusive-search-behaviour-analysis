@@ -27,6 +27,7 @@ chrome.runtime.onMessage.addListener(
   }
 )
 
+<<<<<<< HEAD
 // TODO: Experimental
 document.addEventListener('submit', function(event) {
   // Check if the target element is a form
@@ -38,6 +39,8 @@ document.addEventListener('submit', function(event) {
   }
 });
 
+=======
+>>>>>>> origin/master
 let cancelled = false
 let timeStamp = Date.now()
 
@@ -63,8 +66,7 @@ function handleBeforeUnload(event) {
 
 
 function startCapture() {
-  // window.addEventListener("beforeunload", handleBeforeUnload);
-  // window.addEventListener("unload", unloadHandler);
+  window.addEventListener("beforeunload", handleBeforeUnload);
 
   navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
     .then((stream) => {
@@ -89,7 +91,6 @@ function startCapture() {
         console.log('Stopped');
         changeRecordingState();
         window.removeEventListener("beforeunload", handleBeforeUnload);
-        // window.removeEventListener("unload", unloadHandler);
 
         if (cancelled) {
           console.log(recorder.state);
@@ -113,7 +114,7 @@ function startCapture() {
     .catch((error) => {
       console.error(`Error: ${error}`);
       window.removeEventListener("beforeunload", handleBeforeUnload);
-      //window.removeEventListener("unload", unloadHandler);
+      window.removeEventListener("unload", unloadHandler);
       chrome.storage.local.set({ recording: false });
       chrome.runtime.sendMessage({ message: "rec_permission_denied" });
     });

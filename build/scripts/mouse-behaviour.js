@@ -5,7 +5,6 @@ chrome.runtime.onMessage.addListener(
         startClickTracking()
       }
       if(request.message === 'stop_click_tracking') {
-        console.log('Stopping click tracking')
         stopClickTracking()
       }
     }

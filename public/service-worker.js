@@ -92,18 +92,19 @@ function startClickTracking() {
       chrome.tabs.sendMessage(tab.id, {message: "start_click_tracking"});
     })
   })
-
-  // Cover all tab interactions
-  chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  const onUpdatedListener = (tabId, changeInfo, tab) => {
     if(changeInfo.status == "complete") {
       chrome.tabs.sendMessage(tabId, { message: "start_click_tracking" });
     }
-  })
+  }
+  // Cover all tab interactions
+  chrome.tabs.onUpdated.addListener(onUpdatedListener)
 
+  const onCreatedListener = (tab) => {
+    chrome.tabs.sendMessage(tab.id, { message: "start_click_tracking" })
+}
   // Cover for newly created tabs, since extension gets "reloaded" on every change
-  chrome.tabs.onCreated.addListener((tab) => {
-      chrome.tabs.sendMessage(tab.id, { message: "start_click_tracking" })
-  })
+  chrome.tabs.onCreated.addListener(onCreatedListener)
 }
 
 function stopClickTracking() {
@@ -112,8 +113,9 @@ function stopClickTracking() {
       chrome.tabs.sendMessage(tab.id, {message: "stop_click_tracking"});
     })
   })
-  chrome.tabs.onCreated.removeListener(startClickTracking)
-  chrome.tabs.onUpdated.removeListener(startClickTracking)
+  // Fixed
+  chrome.tabs.onCreated.removeListener(onCreatedListener)
+  chrome.tabs.onUpdated.removeListener(onUpdatedListener)
 }
 
 async function preprocessJSON() {

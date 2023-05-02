@@ -27,17 +27,6 @@ chrome.runtime.onMessage.addListener(
   }
 )
 
-// TODO: Experimental
-document.addEventListener('submit', function(event) {
-  // Check if the target element is a form
-  if (event.target.tagName === 'FORM') {
-    // Open the form submission URL in a new tab
-    chrome.tabs.create({ url: event.target.action });
-    // Prevent the default form submission action
-    event.preventDefault();
-  }
-});
-
 let cancelled = false
 let timeStamp = Date.now()
 
@@ -64,6 +53,16 @@ function handleBeforeUnload(event) {
 
 function startCapture() {
   window.addEventListener("beforeunload", handleBeforeUnload);
+  const links = document.querySelectorAll('a');
+  const forms = document.querySelectorAll('form');
+
+  links.forEach(link => {
+    link.setAttribute('target', '_blank');
+  });
+
+  forms.forEach(form => {
+    form.setAttribute('target', '_blank')
+  })
 
   navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
     .then((stream) => {

@@ -183,13 +183,11 @@ function UI(props) {
                     )}
                 </Grid>
                 <Grid>
-                    
                     <FormGroup>
                         <FormControlLabel disabled={record} control={<Checkbox checked={screen} onClick={handleChange} name="screen" />} label="Record screen" />
                         <FormControlLabel disabled={record} control={<Checkbox checked={navigation} onClick={handleChange} name="navigation" />} label="Track navigation" />
                         <FormControlLabel disabled={record} control={<Checkbox checked={mouse} onClick={handleChange} name="mouse"/>} label="Track mouse" />
                     </FormGroup>
-                   
                 </Grid>
                 <Grid item>
                     {record === true ? (

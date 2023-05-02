@@ -10,6 +10,7 @@ chrome.runtime.onMessage.addListener(
       startClickTracking()
     }
     if (request.message === "start_screen_recording") {
+      isScreenRecording = true
       startScreenRecording()
     }
     if (request.message === "stop_screen_recording") {
@@ -57,6 +58,7 @@ let navigationData = []
 let recordedChunks = []
 let isNavTrackingEnabled = false
 let isClickTrackingEnabled = false
+let isScreenRecording = false
 
 // FUNCTIONS
 // Save navigational data
@@ -81,6 +83,7 @@ function uploadRecordingToServer(recordedChunks) {
 }
 
 function startScreenRecording() {
+  // TODO: Might not work
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     tabs.forEach((tab) => {
       chrome.tabs.sendMessage(tab.id, {message: "start"});
@@ -109,46 +112,35 @@ function stopNavigationTracking() {
   chrome.webNavigation.onCommitted.removeListener(navTracker)
 }
 
+const onUpdatedListener = (tabId, changeInfo, tab) => {
+  if(changeInfo.status == "complete") {
+    chrome.tabs.sendMessage(tabId, { message: "start_click_tracking" });
+  }
+}
+
+const onCreatedListener = (tab) => {
+  chrome.tabs.sendMessage(tab.id, { message: "start_click_tracking" })
+}
+
 function startClickTracking() {
   chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-<<<<<<< HEAD
     tabs.forEach((tab) => {
       chrome.tabs.sendMessage(tab.id, {message: "start_click_tracking"});
     })
   })
-  const onUpdatedListener = (tabId, changeInfo, tab) => {
-    if(changeInfo.status == "complete") {
-      chrome.tabs.sendMessage(tabId, { message: "start_click_tracking" });
-    }
-  }
   // Cover all tab interactions
   chrome.tabs.onUpdated.addListener(onUpdatedListener)
 
-  const onCreatedListener = (tab) => {
-    chrome.tabs.sendMessage(tab.id, { message: "start_click_tracking" })
-}
   // Cover for newly created tabs, since extension gets "reloaded" on every change
   chrome.tabs.onCreated.addListener(onCreatedListener)
-=======
-  chrome.tabs.sendMessage(tabs[0].id, {message: "start_click_tracking"});
-  chrome.tabs.onUpdated.addListener(pageUpdateListener)
-  chrome.tabs.onCreated.addListener(pageCreatedListener)
-  })
->>>>>>> origin/master
 }
 
 function stopClickTracking() {
   chrome.tabs.query({}, (tabs) => {
     chrome.tabs.sendMessage(tabs[0].id, {message: "stop_click_tracking"});
   })
-<<<<<<< HEAD
-  // Fixed
-  chrome.tabs.onCreated.removeListener(onCreatedListener)
   chrome.tabs.onUpdated.removeListener(onUpdatedListener)
-=======
-  chrome.tabs.onCreated.removeListener(pageCreatedListener)
-  chrome.tabs.onUpdated.removeListener(pageUpdateListener)
->>>>>>> origin/master
+  chrome.tabs.onCreated.removeListener(onCreatedListener)
 }
 
 async function preprocessJSON() {

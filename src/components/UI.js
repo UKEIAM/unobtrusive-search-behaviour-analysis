@@ -91,14 +91,7 @@ function UI(props) {
         })
         if (userOptions.screen) {
             console.log('Screen')
-            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                chrome.tabs.sendMessage(tabs[0].id, { message: "start" })
-                if(chrome.runtime.lastError) {
-                    // TODO: Warning mechanism to tell user that some webpage should be opened
-                    console.log(chrome.runtime.lastError)
-                    alert("Please enter a website. The extensions access is not allowed from home pages.")
-                }
-            })
+            chrome.runtime.sendMessage({ message: "start_screen_recording"})
         }
 
         if (userOptions.navigation) {
@@ -127,9 +120,7 @@ function UI(props) {
             triggerFeedback: true
         })
         if (screen) {
-            chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-                chrome.tabs.sendMessage(tabs[0].id, { message: "stop" })
-            })
+            chrome.runtime.sendMessage({ message: "stop_screen_recording"})
         }
     }
 
@@ -145,7 +136,7 @@ function UI(props) {
             recording: false,
           })
     }
-    const continueProcessing = async () => {
+    const continueProcessing = () => {
         console.log('Processing data...')
         chrome.runtime.sendMessage({ message: "feedback_recieved" }, (response) => {
             console.log(response)
@@ -192,13 +183,11 @@ function UI(props) {
                     )}
                 </Grid>
                 <Grid>
-                    
                     <FormGroup>
                         <FormControlLabel disabled={record} control={<Checkbox checked={screen} onClick={handleChange} name="screen" />} label="Record screen" />
                         <FormControlLabel disabled={record} control={<Checkbox checked={navigation} onClick={handleChange} name="navigation" />} label="Track navigation" />
                         <FormControlLabel disabled={record} control={<Checkbox checked={mouse} onClick={handleChange} name="mouse"/>} label="Track mouse" />
                     </FormGroup>
-                   
                 </Grid>
                 <Grid item>
                     {record === true ? (

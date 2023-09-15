@@ -27,28 +27,6 @@ chrome.runtime.onMessage.addListener(
   }
 )
 
-// TODO: Experimental
-// Make sure that the tab of the screen recorder stays open and all redirects etc. are opened in a new tab
-document.addEventListener('click', function(event) {
-  // Check if the target element is a link
-  if (event.target.tagName === 'A') {
-    // Open the link in a new tab
-    chrome.tabs.create({ url: event.target.href });
-    // Prevent the default link action
-    event.preventDefault();
-  }
-});
-
-document.addEventListener('submit', function(event) {
-  // Check if the target element is a form
-  if (event.target.tagName === 'FORM') {
-    // Open the form submission URL in a new tab
-    chrome.tabs.create({ url: event.target.action });
-    // Prevent the default form submission action
-    event.preventDefault();
-  }
-});
-
 let cancelled = false
 let timeStamp = Date.now()
 
@@ -74,8 +52,17 @@ function handleBeforeUnload(event) {
 
 
 function startCapture() {
-  // window.addEventListener("beforeunload", handleBeforeUnload);
-  // window.addEventListener("unload", unloadHandler);
+  window.addEventListener("beforeunload", handleBeforeUnload);
+  const links = document.querySelectorAll('a');
+  const forms = document.querySelectorAll('form');
+
+  links.forEach(link => {
+    link.setAttribute('target', '_blank');
+  });
+
+  forms.forEach(form => {
+    form.setAttribute('target', '_blank')
+  })
 
   navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
     .then((stream) => {
@@ -83,8 +70,9 @@ function startCapture() {
       window.stream = stream;
 
       // Create a new MediaRecorder object
-      const options = { mimeType: 'video/webm; codecs="vp8"' };
+      const options = { mimeType: 'video/mp4' };
       recorder = new MediaRecorder(stream, options);
+      console.log("Rec started")
 
       // Start recording
       let initialTimeStamp = null;
@@ -100,7 +88,6 @@ function startCapture() {
         console.log('Stopped');
         changeRecordingState();
         window.removeEventListener("beforeunload", handleBeforeUnload);
-        // window.removeEventListener("unload", unloadHandler);
 
         if (cancelled) {
           console.log(recorder.state);
@@ -124,7 +111,7 @@ function startCapture() {
     .catch((error) => {
       console.error(`Error: ${error}`);
       window.removeEventListener("beforeunload", handleBeforeUnload);
-      //window.removeEventListener("unload", unloadHandler);
+      window.removeEventListener("unload", unloadHandler);
       chrome.storage.local.set({ recording: false });
       chrome.runtime.sendMessage({ message: "rec_permission_denied" });
     });
@@ -156,7 +143,7 @@ async function downloadRaw() {
     const link = document.createElement("a");
     link.style.display = "none";
     link.href = video;
-    link.download = `recording_${initialTimeStamp}_${label}.webm`;
+    link.download = `recording_${initialTimeStamp}_${label}.mp4`;
     link.click();
     URL.revokeObjectURL(video);
   }

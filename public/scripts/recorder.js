@@ -70,8 +70,9 @@ function startCapture() {
       window.stream = stream;
 
       // Create a new MediaRecorder object
-      const options = { mimeType: 'video/webm; codecs="vp8"' };
+      const options = { mimeType: 'video/webm' };
       recorder = new MediaRecorder(stream, options);
+      console.log("Rec started")
 
       // Start recording
       let initialTimeStamp = null;

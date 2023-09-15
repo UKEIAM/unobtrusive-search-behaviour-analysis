@@ -85,6 +85,8 @@ function startCapture() {
         chrome.storage.local.set({ initialTimeStamp });
       };
       recorder.onstop = () => {
+        // getSeekableBlob(recorder.getBlob(), function(seekableBlob) {
+        //   video.src = URL.createObjectURL(seekableBlob);
         console.log('Stopped');
         changeRecordingState();
         window.removeEventListener("beforeunload", handleBeforeUnload);

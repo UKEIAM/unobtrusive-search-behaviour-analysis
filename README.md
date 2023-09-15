@@ -38,4 +38,4 @@ Disclaimer: The provided tool is a first prototype to show possibilities of trac
 - The screen recording session is only active, as long as the original tab is not being refreshed or redirected. Unfortunatelly, that is a security thing by manifestV3 and I did not find any solution to bypass it.
 - Sometimes, before navigation and click tracking is logging items, the current tab needs to be refreshed (unfortunate combination with the first mentioned issue).
 - The screen recording is only saved temprarely and available for download if the session is terminated from the same tab as it was started.
-- The output screen recording has no metadata on the duration of the recording. Multiple debugging session did not lead to a solution. This issue causes the embedded subtitles file to have a short timely delay
+- The output screen recording has no metadata on the duration of the recording. Multiple debugging session did not lead to a solution. This issue causes the embedded subtitles file to have a short timely delay.

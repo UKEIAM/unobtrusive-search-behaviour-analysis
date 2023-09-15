@@ -70,7 +70,7 @@ function startCapture() {
       window.stream = stream;
 
       // Create a new MediaRecorder object
-      const options = { mimeType: 'video/webm' };
+      const options = { mimeType: 'video/mp4' };
       recorder = new MediaRecorder(stream, options);
       console.log("Rec started")
 
@@ -143,7 +143,7 @@ async function downloadRaw() {
     const link = document.createElement("a");
     link.style.display = "none";
     link.href = video;
-    link.download = `recording_${initialTimeStamp}_${label}.webm`;
+    link.download = `recording_${initialTimeStamp}_${label}.mp4`;
     link.click();
     URL.revokeObjectURL(video);
   }
